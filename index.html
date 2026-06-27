@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#2563eb">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="mobile-web-app-capable" content="yes">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icon.svg">
+  <title>Shopper — Premium E-Commerce</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="container header-inner">
+      <a href="#" class="logo">
+        <i class="fas fa-cube"></i>
+        <span>SHOPPER</span>
+      </a>
+
+      <div class="search-bar">
+        <i class="fas fa-search search-icon"></i>
+        <input type="text" id="searchInput" placeholder="Search products..." autocomplete="off">
+        <button class="voice-btn" id="barcodeBtn" aria-label="Scan barcode" style="font-size:14px;"><i class="fas fa-barcode"></i></button>
+        <button class="voice-btn" id="voiceBtn" aria-label="Voice search"><i class="fas fa-microphone"></i></button>
+        <button class="search-btn"><i class="fas fa-search"></i></button>
+      </div>
+
+      <div class="header-actions">
+        <button class="icon-btn currency-btn" id="currencyToggle" aria-label="Toggle currency">
+          <span style="font-size:12px;font-weight:700;">PHP</span>
+        </button>
+        <button class="icon-btn" id="langToggle" aria-label="Toggle language">
+          <span style="font-size:12px;font-weight:700;">EN</span>
+        </button>
+        <button class="icon-btn" id="darkToggle" aria-label="Toggle dark mode">
+          <i class="fas fa-moon"></i>
+        </button>
+        <button class="icon-btn" id="ordersBtn" aria-label="My orders">
+          <i class="fas fa-receipt"></i>
+          <span class="notif-dot" id="notifDot"></span>
+        </button>
+        <button class="icon-btn" id="wishlistBtn" aria-label="Wishlist">
+          <i class="fas fa-heart"></i>
+          <span class="cart-badge wishlist-badge" id="wishlistBadge" style="display:none">0</span>
+        </button>
+        <button class="icon-btn" id="cartBtn" aria-label="Shopping cart">
+          <i class="fas fa-shopping-bag"></i>
+          <span class="cart-badge" id="cartBadge">0</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- CATEGORY NAV -->
+  <nav class="category-nav">
+    <div class="container">
+      <div class="categories" id="categories">
+        <button class="cat-btn active" data-cat="all">All</button>
+        <button class="cat-btn" data-cat="electronics">Electronics</button>
+        <button class="cat-btn" data-cat="fashion">Fashion</button>
+        <button class="cat-btn" data-cat="home">Home & Living</button>
+        <button class="cat-btn" data-cat="beauty">Beauty</button>
+        <button class="cat-btn" data-cat="food">Food & Drinks</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- BANNER -->
+  <section class="banner">
+    <div class="container">
+      <div class="banner-content">
+        <span class="banner-tag">Limited Time Offer</span>
+        <h1>Summer Sale<br><span class="banner-highlight">Up to 70% Off</span></h1>
+        <p>Shop thousands of premium products at unbeatable prices. Don't miss out on exclusive deals.</p>
+        <div class="countdown" id="countdown">
+          <div><span id="cdHours">23</span>h</div>
+          <div><span id="cdMins">59</span>m</div>
+          <div><span id="cdSecs">59</span>s</div>
+        </div>
+        <a href="#" class="btn-primary"><i class="fas fa-bag-shopping"></i> Shop</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRODUCTS -->
+  <section class="products-section">
+    <div class="container">
+      <div class="section-header">
+        <h2>Featured Products</h2>
+        <div class="section-controls">
+          <div class="view-toggle">
+            <button class="view-btn active" data-view="grid" aria-label="Grid view"><i class="fas fa-grid-2"></i></button>
+            <button class="view-btn" data-view="list" aria-label="List view"><i class="fas fa-list"></i></button>
+          </div>
+          <select class="sort-select" id="sortSelect">
+            <option value="default">Default</option>
+            <option value="price-asc">Price: Low to High</option>
+            <option value="price-desc">Price: High to Low</option>
+            <option value="rating">Highest Rated</option>
+          </select>
+          <span class="product-count" id="productCount">24 products</span>
+        </div>
+      </div>
+      <div class="product-grid" id="productGrid"></div>
+    </div>
+  </section>
+
+  <!-- WEEKLY DEALS -->
+  <section class="products-section" style="padding-top:0;">
+    <div class="container">
+      <div class="section-header">
+        <h2><i class="fas fa-fire" style="color:#ef4444;"></i> Weekly Deals</h2>
+        <a href="#" class="btn-primary" style="padding:8px 16px;font-size:13px;">View All</a>
+      </div>
+      <div class="deals-carousel" id="dealsCarousel"></div>
+    </div>
+  </section>
+
+  <!-- RECENTLY VIEWED -->
+  <section class="products-section recent-section" id="recentSection" style="display:none;">
+    <div class="container">
+      <h3><i class="fas fa-clock-rotate"></i> Recently Viewed</h3>
+      <div class="recent-scroll" id="recentScroll"></div>
+    </div>
+  </section>
+
+  <!-- COMPARE BAR -->
+  <div class="compare-bar" id="compareBar">
+    <span style="font-size:13px;font-weight:600;white-space:nowrap;">Compare</span>
+    <div class="compare-bar-items" id="compareItems"></div>
+    <button class="compare-btn" id="compareBtn" disabled aria-label="Compare"><i class="fas fa-scale-balanced"></i> Compare</button>
+  </div>
+
+  <!-- CART SIDEBAR -->
+  <div class="cart-overlay" id="cartOverlay"></div>
+  <div class="cart-sidebar" id="cartSidebar">
+    <div class="cart-header">
+      <h3><i class="fas fa-shopping-bag"></i> Your Cart</h3>
+      <button id="closeCart" aria-label="Close cart"><i class="fas fa-xmark"></i></button>
+    </div>
+    <div class="cart-body" id="cartBody">
+      <div class="cart-empty">
+        <i class="fas fa-shopping-bag"></i>
+        <p>Your cart is empty</p>
+        <small>Add some products to get started</small>
+      </div>
+    </div>
+    <div class="cart-footer" id="cartFooter">
+      <div class="cart-total">
+        <span>Total</span>
+        <span class="total-price" id="totalPrice">₱0.00</span>
+      </div>
+      <button class="checkout-btn" id="checkoutBtn" disabled aria-label="Checkout"><i class="fas fa-bag-shopping"></i></button>
+    </div>
+  </div>
+
+  <!-- WISHLIST SIDEBAR -->
+  <div class="cart-overlay" id="wishlistOverlay"></div>
+  <div class="cart-sidebar" id="wishlistSidebar">
+    <div class="cart-header">
+      <h3><i class="fas fa-heart"></i> Your Wishlist</h3>
+      <button id="closeWishlist" aria-label="Close wishlist"><i class="fas fa-xmark"></i></button>
+    </div>
+    <div class="cart-body" id="wishlistBody">
+      <div class="cart-empty">
+        <i class="fas fa-heart"></i>
+        <p>Your wishlist is empty</p>
+        <small>Save your favorite items here</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- ORDER HISTORY MODAL -->
+  <div class="checkout-overlay" id="ordersOverlay"></div>
+  <div class="checkout-modal" id="ordersModal">
+    <div class="checkout-header">
+      <h3><i class="fas fa-receipt"></i> My Orders</h3>
+      <button id="closeOrders" aria-label="Close orders"><i class="fas fa-xmark"></i></button>
+    </div>
+    <div class="checkout-body" id="ordersBody">
+      <div class="cart-empty">
+        <i class="fas fa-box"></i>
+        <p>No orders yet</p>
+        <small>Your completed orders will appear here</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRODUCT MODAL -->
+  <div class="modal-overlay" id="modalOverlay"></div>
+  <div class="product-modal" id="productModal">
+    <button class="modal-close" id="modalClose" aria-label="Close modal"><i class="fas fa-xmark"></i></button>
+    <div class="modal-body" id="modalBody"></div>
+  </div>
+
+  <!-- CHECKOUT MODAL -->
+  <div class="checkout-overlay" id="checkoutOverlay"></div>
+  <div class="checkout-modal" id="checkoutModal">
+    <div class="checkout-header">
+      <h3><i class="fas fa-receipt"></i> Order Summary</h3>
+      <button id="closeCheckout" aria-label="Close checkout"><i class="fas fa-xmark"></i></button>
+    </div>
+    <div class="checkout-body" id="checkoutBody"></div>
+    <div class="checkout-footer">
+      <div class="checkout-total">
+        <span>Total</span>
+        <span id="checkoutTotal">₱0.00</span>
+      </div>
+      <button class="place-order-btn" id="placeOrder" aria-label="Place order"><i class="fas fa-check"></i> Order</button>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-col">
+          <div class="footer-logo">
+            <i class="fas fa-cube"></i>
+            <span>SHOPPER</span>
+          </div>
+          <p class="footer-desc">Shopper is your trusted online shopping destination. We offer a wide range of premium products at the best prices with fast shipping across the Philippines.</p>
+          <div class="footer-social">
+            <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+            <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+            <a href="#" aria-label="Twitter"><i class="fab fa-x-twitter"></i></a>
+            <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+          </div>
+        </div>
+        <div class="footer-col">
+          <h4>Customer Service</h4>
+          <ul>
+            <li><a href="#">Help Center</a></li>
+            <li><a href="#" id="notifPrefsLink">Notification Settings</a></li>
+            <li><a href="#">Payment Methods</a></li>
+            <li><a href="#">Shipping Info</a></li>
+            <li><a href="#">Returns & Refunds</a></li>
+            <li><a href="#">Contact Us</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Shop</h4>
+          <ul>
+            <li><a href="#">Electronics</a></li>
+            <li><a href="#">Fashion</a></li>
+            <li><a href="#">Home & Living</a></li>
+            <li><a href="#">Beauty</a></li>
+            <li><a href="#">Food & Drinks</a></li>
+          </ul>
+        </div>
+        <div class="footer-col">
+          <h4>Stay Updated</h4>
+          <div class="newsletter-form">
+            <p style="font-size:13px;color:#94a3b8;margin-bottom:10px;">Get exclusive deals and updates</p>
+            <input type="email" id="newsletterEmail" placeholder="Your email address">
+            <button id="newsletterBtn" class="newsletter-btn"><i class="fas fa-paper-plane"></i></button>
+          </div>
+          <h4 style="margin-top:16px;">Payment Methods</h4>
+          <div class="payment-icons">
+            <span><i class="fab fa-cc-visa"></i></span>
+            <span><i class="fab fa-cc-mastercard"></i></span>
+            <span><i class="fab fa-cc-paypal"></i></span>
+            <span><i class="fas fa-credit-card"></i></span>
+            <span><i class="fas fa-qrcode"></i></span>
+            <span>GCash</span>
+          </div>
+          <h4 style="margin-top:16px;">Download the App</h4>
+          <div class="app-badges">
+            <a href="#" class="app-badge"><i class="fab fa-apple"></i> App Store</a>
+            <a href="#" class="app-badge"><i class="fab fa-google-play"></i> Google Play</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="container">
+        <p>&copy; 2026 Shopper. All rights reserved. Made with <i class="fas fa-heart" style="color:#ef4444;"></i> in the Philippines.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast"></div>
+
+  <!-- CHAT BUBBLE -->
+  <div class="chat-bubble" id="chatBubble">
+    <button class="chat-btn" id="chatBtn" aria-label="Customer support"><i class="fas fa-comment-dots"></i></button>
+    <div class="chat-box" id="chatBox">
+      <div class="chat-header"><i class="fas fa-headset"></i> Customer Support</div>
+      <div class="chat-msg">Hello! How can we help you today? 😊</div>
+      <div class="chat-actions">
+        <button class="chat-action" data-msg="Where is my order?">Where is my order?</button>
+        <button class="chat-action" data-msg="I want to return an item">I want to return an item</button>
+        <button class="chat-action" data-msg="Payment issues">Payment issues</button>
+        <button class="chat-action" data-msg="Shipping information">Shipping information</button>
+      </div>
+      <div class="chat-input-row">
+        <input type="text" id="chatInput" placeholder="Type a message..." class="chat-input">
+        <button class="chat-send" id="chatSend"><i class="fas fa-paper-plane"></i></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCROLL TO TOP -->
+  <button class="scroll-top" id="scrollTop" aria-label="Scroll to top"><i class="fas fa-chevron-up"></i></button>
+
+  <script src="script.js"></script>
+</body>
+</html>
