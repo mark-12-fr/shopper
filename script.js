@@ -156,7 +156,7 @@ function persistWishlist() {
   if (window.ShopperDB && window.ShopperDB.enabled) window.ShopperDB.saveWishlist(wishlist);
 }
 function persistOrders() {
-  persistOrders();
+  localStorage.setItem('shopperOrders', JSON.stringify(orders));
   if (window.ShopperDB && window.ShopperDB.enabled) window.ShopperDB.saveOrders(orders);
 }
 let sellerAccounts = {
