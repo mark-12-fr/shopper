@@ -1,9 +1,11 @@
-const CACHE = 'shopper-v1';
+const CACHE = 'shopper-v2';
 const URLS = [
   '.',
   'index.html',
   'style.css',
   'script.js',
+  'supabase-config.js',
+  'supabase-client.js',
   'manifest.json',
   'icon.svg',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css',

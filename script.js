@@ -144,6 +144,21 @@ const USD_RATE = 0.018;
 const POINTS_PER_PESO = 0.1;
 let cartTimeout = null;
 let notifPrefs = JSON.parse(localStorage.getItem('shopperNotifPrefs')) || { cartReminder: true, deals: true, orders: true };
+
+// Persistence helpers — write to localStorage (offline cache) and mirror to
+// Supabase when it's configured/connected. See supabase-client.js.
+function persistCart() {
+  localStorage.setItem('shopperCart', JSON.stringify(cart));
+  if (window.ShopperDB && window.ShopperDB.enabled) window.ShopperDB.saveCart(cart);
+}
+function persistWishlist() {
+  localStorage.setItem('shopperWishlist', JSON.stringify(wishlist));
+  if (window.ShopperDB && window.ShopperDB.enabled) window.ShopperDB.saveWishlist(wishlist);
+}
+function persistOrders() {
+  persistOrders();
+  if (window.ShopperDB && window.ShopperDB.enabled) window.ShopperDB.saveOrders(orders);
+}
 let sellerAccounts = {
   1: { name: 'Apple PH Official Store', rating: 4.9, sales: 12500, response: '98%', joined: '2023' },
   5: { name: 'Fashion Hub Manila', rating: 4.7, sales: 45200, response: '95%', joined: '2022' }
@@ -533,7 +548,7 @@ function renderProducts() {
 function renderCart() {
   const totalQty = cart.reduce((s, i) => s + i.qty, 0);
   cartBadge.textContent = totalQty;
-  localStorage.setItem('shopperCart', JSON.stringify(cart));
+  persistCart();
   if (!cart.length) {
     cartBody.innerHTML = `
       <div class="cart-empty">
@@ -587,7 +602,7 @@ function toggleWishlist(id) {
   const idx = wishlist.indexOf(id);
   if (idx > -1) { wishlist.splice(idx, 1); }
   else { wishlist.push(id); }
-  localStorage.setItem('shopperWishlist', JSON.stringify(wishlist));
+  persistWishlist();
   renderWishlist();
   renderProducts();
 }
@@ -648,7 +663,7 @@ function addOrder() {
     status: 'Processing',
     cancelled: false
   });
-  localStorage.setItem('shopperOrders', JSON.stringify(orders));
+  persistOrders();
   if (notif) { renderNotifDot(); showToast('Order placed! Estimated delivery: ' + getDeliveryDate(), 'success'); }
   else { showToast('Order placed successfully!', 'success'); }
 }
@@ -664,7 +679,7 @@ function cancelOrder(id) {
   if (order.status !== 'Processing') { showToast('Can only cancel processing orders'); return; }
   order.cancelled = true;
   order.status = 'Cancelled';
-  localStorage.setItem('shopperOrders', JSON.stringify(orders));
+  persistOrders();
   renderOrders();
   renderNotifDot();
   showToast('Order cancelled', '');
@@ -792,13 +807,15 @@ function submitReview(productId) {
 
   const p = products.find(x => x.id === productId);
   if (!p) return;
-  p.reviews.push({
+  const review = {
     id: Date.now(),
     user: name,
     rating: reviewStarRating,
     comment: comment,
     date: new Date().toISOString().split('T')[0]
-  });
+  };
+  p.reviews.push(review);
+  if (window.ShopperDB && window.ShopperDB.enabled) window.ShopperDB.addReview(productId, review);
   nameInput.value = '';
   commentInput.value = '';
   reviewStarRating = 0;
@@ -1856,7 +1873,7 @@ document.addEventListener('click', e => {
     const order = orders.find(o => o.id === orderId);
     if (order) {
       order.rated = val;
-      localStorage.setItem('shopperOrders', JSON.stringify(orders));
+      persistOrders();
       renderOrders();
       showToast('Order rated! ⭐', 'success');
     }
@@ -2473,6 +2490,49 @@ applyLang(currentLang);
 renderProducts();
 renderCart();
 renderWishlist();
+
+// Supabase sync (progressive enhancement). The app already rendered with its
+// built-in data above; once the DB connects we swap in live data and, on a
+// brand-new visitor, migrate anything already saved locally up to the cloud.
+if (window.ShopperDB) {
+  window.ShopperDB.ready.then(async (connected) => {
+    if (!connected) return;
+    try {
+      const dbProducts = await window.ShopperDB.loadProducts();
+      if (dbProducts && dbProducts.length) {
+        products.length = 0;
+        dbProducts.forEach(p => products.push(p));
+      }
+
+      const [dbCart, dbWishlist, dbOrders] = await Promise.all([
+        window.ShopperDB.loadCart(),
+        window.ShopperDB.loadWishlist(),
+        window.ShopperDB.loadOrders()
+      ]);
+
+      if (Array.isArray(dbCart)) {
+        if (!dbCart.length && cart.length) window.ShopperDB.saveCart(cart);
+        else cart = dbCart;
+      }
+      if (Array.isArray(dbWishlist)) {
+        if (!dbWishlist.length && wishlist.length) window.ShopperDB.saveWishlist(wishlist);
+        else wishlist = dbWishlist;
+      }
+      if (Array.isArray(dbOrders)) {
+        if (!dbOrders.length && orders.length) window.ShopperDB.saveOrders(orders);
+        else orders = dbOrders;
+      }
+
+      renderProducts();
+      renderCart();
+      renderWishlist();
+      renderOrders();
+      renderNotifDot();
+    } catch (e) {
+      console.warn('[Shopper] Supabase sync failed, continuing with local data:', e);
+    }
+  });
+}
 renderRecent();
 renderCompareBar();
 renderNotifDot();
