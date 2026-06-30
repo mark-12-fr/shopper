@@ -999,6 +999,22 @@ body {
   padding: 16px 24px 20px;
 }
 
+.cart-discount-note {
+  font-size: 12px;
+  color: #059669;
+  margin-bottom: 8px;
+}
+
+.add-cart-btn:disabled,
+.buy-now-btn:disabled,
+.modal-add-btn:disabled,
+.modal-buy-btn:disabled {
+  opacity: .45;
+  cursor: not-allowed;
+  pointer-events: none;
+  filter: grayscale(1);
+}
+
 .cart-total {
   display: flex;
   justify-content: space-between;

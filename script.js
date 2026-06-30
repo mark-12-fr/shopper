@@ -490,8 +490,8 @@ function renderProducts() {
         </div>
         <p style="font-size:13px;color:var(--text-secondary);margin:6px 0;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;">${p.desc}</p>
         <div style="display:flex;gap:6px;margin-top:auto;">
-          <button class="buy-now-btn" data-id="${p.id}" aria-label="Buy now" style="flex:1;padding:8px;font-size:13px;"><i class="fas fa-bag-shopping"></i></button>
-          <button class="add-cart-btn" data-id="${p.id}" aria-label="Add to cart" style="flex:0 0 38px;padding:8px;font-size:13px;"><i class="fas fa-cart-plus"></i></button>
+          <button class="buy-now-btn" data-id="${p.id}" aria-label="Buy now" style="flex:1;padding:8px;font-size:13px;" ${p.stock === 0 ? 'disabled' : ''}><i class="fas fa-bag-shopping"></i></button>
+          <button class="add-cart-btn" data-id="${p.id}" aria-label="Add to cart" style="flex:0 0 38px;padding:8px;font-size:13px;" ${p.stock === 0 ? 'disabled' : ''}><i class="fas fa-cart-plus"></i></button>
         </div>
       </div>
     </div>` : `
@@ -519,10 +519,10 @@ function renderProducts() {
         </div>
       </div>
       <div class="product-actions">
-        <button class="add-cart-btn" data-id="${p.id}" aria-label="Add to cart">
+        <button class="add-cart-btn" data-id="${p.id}" aria-label="Add to cart" ${p.stock === 0 ? 'disabled' : ''}>
           <i class="fas fa-cart-plus"></i>
         </button>
-        <button class="buy-now-btn" data-id="${p.id}" aria-label="Buy now">
+        <button class="buy-now-btn" data-id="${p.id}" aria-label="Buy now" ${p.stock === 0 ? 'disabled' : ''}>
           <i class="fas fa-bag-shopping"></i>
         </button>
       </div>
@@ -569,12 +569,17 @@ function renderCart() {
   });
   cartBody.innerHTML = html;
   const discount = calcBulkDiscount(totalQty);
+  const discountNote = document.getElementById('cartDiscountNote');
   if (discount > 0) {
     const savings = total * discount;
     totalPrice.innerHTML = `${formatPrice(total - savings)} <span style="font-size:13px;font-weight:400;color:#059669;">(-${formatPrice(savings)})</span>`;
-    totalPrice.parentElement.innerHTML += `<div style="font-size:12px;color:#059669;margin-top:-8px;margin-bottom:8px;"><i class="fas fa-tag"></i> Bulk discount ${Math.round(discount * 100)}% off</div>`;
+    if (discountNote) {
+      discountNote.innerHTML = `<i class="fas fa-tag"></i> Bulk discount ${Math.round(discount * 100)}% off`;
+      discountNote.style.display = 'block';
+    }
   } else {
     totalPrice.textContent = formatPrice(total);
+    if (discountNote) { discountNote.innerHTML = ''; discountNote.style.display = 'none'; }
   }
 }
 
@@ -718,20 +723,34 @@ function renderOrders() {
   renderNotifDot();
 }
 
-function addToCart(id) {
+function addToCart(id, qty = 1) {
+  const prod = products.find(p => p.id === id);
+  if (!prod) return;
+  if (prod.stock === 0) { showToast('Sorry, this item is out of stock'); return; }
   const existing = cart.find(i => i.id === id);
-  if (existing) { existing.qty += modalQty; }
-  else { cart.push({ id, qty: modalQty }); }
+  const current = existing ? existing.qty : 0;
+  let addQty = qty;
+  if (current + addQty > prod.stock) {
+    addQty = prod.stock - current;
+    if (addQty <= 0) { showToast(`Only ${prod.stock} in stock`); return; }
+  }
+  if (existing) { existing.qty += addQty; }
+  else { cart.push({ id, qty: addQty }); }
   renderCart();
   cartBadge.classList.remove('badge-pop');
   void cartBadge.offsetWidth;
   cartBadge.classList.add('badge-pop');
-  showToast('Added to cart', 'success');
+  showToast(addQty < qty ? `Only ${prod.stock} available — added what we could` : 'Added to cart', addQty < qty ? '' : 'success');
 }
 
 function updateCartQty(id, delta) {
   const item = cart.find(i => i.id === id);
   if (!item) return;
+  const prod = products.find(p => p.id === id);
+  if (delta > 0 && prod && item.qty + delta > prod.stock) {
+    showToast(`Only ${prod.stock} in stock`);
+    return;
+  }
   item.qty += delta;
   if (item.qty <= 0) { cart = cart.filter(i => i.id !== id); }
   renderCart();
@@ -743,11 +762,13 @@ function removeFromCart(id) {
   showToast('Removed from cart');
 }
 
-function buyNow(id) {
+function buyNow(id, qty = 1) {
   const p = products.find(x => x.id === id);
   if (!p) return;
+  if (p.stock === 0) { showToast('Sorry, this item is out of stock'); return; }
+  const buyQty = Math.min(qty, p.stock);
   savedCart = JSON.parse(JSON.stringify(cart));
-  cart = [{ id, qty: modalQty }];
+  cart = [{ id, qty: buyQty }];
   renderCart();
   openCheckout();
 }
@@ -935,8 +956,8 @@ function openModal(id) {
 
           <p class="modal-desc">${p.desc}</p>
           <div class="modal-btn-group">
-            <button class="modal-buy-btn" data-id="${p.id}" aria-label="Buy now"><i class="fas fa-bag-shopping"></i></button>
-            <button class="modal-add-btn" data-id="${p.id}" aria-label="Add to cart"><i class="fas fa-cart-plus"></i></button>
+            <button class="modal-buy-btn" data-id="${p.id}" aria-label="Buy now" ${p.stock === 0 ? 'disabled' : ''}><i class="fas fa-bag-shopping"></i></button>
+            <button class="modal-add-btn" data-id="${p.id}" aria-label="Add to cart" ${p.stock === 0 ? 'disabled' : ''}><i class="fas fa-cart-plus"></i></button>
           </div>
         </div>
 
@@ -1332,7 +1353,7 @@ document.addEventListener('click', e => {
 
   const modalBuyBtn = e.target.closest('.modal-buy-btn');
   if (modalBuyBtn) {
-    buyNow(Number(modalBuyBtn.dataset.id));
+    buyNow(Number(modalBuyBtn.dataset.id), modalQty);
     closeModal();
     return;
   }
@@ -1357,7 +1378,7 @@ document.addEventListener('click', e => {
 
   const modalAdd = e.target.closest('.modal-add-btn');
   if (modalAdd) {
-    addToCart(Number(modalAdd.dataset.id));
+    addToCart(Number(modalAdd.dataset.id), modalQty);
     closeModal();
     return;
   }
