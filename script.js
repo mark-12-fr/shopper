@@ -146,7 +146,7 @@ let cartTimeout = null;
 let notifPrefs = JSON.parse(localStorage.getItem('shopperNotifPrefs')) || { cartReminder: true, deals: true, orders: true };
 
 // Persistence helpers — write to localStorage (offline cache) and mirror to
-// Supabase when it's configured/connected. See supabase-client.js.
+// the Flask API when it's reachable. See api.js.
 function persistCart() {
   localStorage.setItem('shopperCart', JSON.stringify(cart));
   if (window.ShopperDB && window.ShopperDB.enabled) window.ShopperDB.saveCart(cart);
@@ -2491,9 +2491,9 @@ renderProducts();
 renderCart();
 renderWishlist();
 
-// Supabase sync (progressive enhancement). The app already rendered with its
-// built-in data above; once the DB connects we swap in live data and, on a
-// brand-new visitor, migrate anything already saved locally up to the cloud.
+// Backend sync (progressive enhancement). The app already rendered with its
+// built-in data above; once the Flask API connects we swap in live data and,
+// on a brand-new visitor, migrate anything already saved locally up to it.
 if (window.ShopperDB) {
   window.ShopperDB.ready.then(async (connected) => {
     if (!connected) return;
@@ -2529,7 +2529,7 @@ if (window.ShopperDB) {
       renderOrders();
       renderNotifDot();
     } catch (e) {
-      console.warn('[Shopper] Supabase sync failed, continuing with local data:', e);
+      console.warn('[Shopper] Backend sync failed, continuing with local data:', e);
     }
   });
 }

@@ -1,11 +1,10 @@
-const CACHE = 'shopper-v2';
+const CACHE = 'shopper-v3';
 const URLS = [
   '.',
   'index.html',
   'style.css',
   'script.js',
-  'supabase-config.js',
-  'supabase-client.js',
+  'api.js',
   'manifest.json',
   'icon.svg',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css',
@@ -29,6 +28,8 @@ self.addEventListener('activate', e => {
 
 self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
+  // Never cache API calls — they must always hit the network (dynamic data).
+  if (url.pathname.startsWith('/api/')) return;
   if (url.origin === location.origin || url.hostname === 'cdnjs.cloudflare.com' || url.hostname === 'fonts.googleapis.com' || url.hostname === 'fonts.gstatic.com') {
     e.respondWith(
       caches.match(e.request).then(cached => {
