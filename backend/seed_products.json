@@ -1,0 +1,986 @@
+[
+  {
+    "id": 1,
+    "name": "iPhone 15 Pro Max 256GB",
+    "category": "electronics",
+    "price": 89990,
+    "origPrice": 99990,
+    "image": "https://loremflickr.com/320/320/iphone,smartphone?lock=1",
+    "rating": 4.8,
+    "sold": 1520,
+    "stock": 50,
+    "badge": "-10%",
+    "maxPerUser": 2,
+    "qa": [
+      {
+        "q": "Is this dual SIM?",
+        "a": "Yes, it supports dual eSIM or one physical SIM + eSIM.",
+        "user": "Apple PH",
+        "date": "2026-05-01"
+      }
+    ],
+    "desc": "Apple iPhone 15 Pro Max featuring the powerful A17 Pro chip, a 48MP camera system, and a stunning titanium design. Experience unparalleled performance.",
+    "video": "https://www.youtube.com/embed/m-EV2yYcnSo",
+    "variants": {
+      "colors": [
+        "Natural Titanium",
+        "Blue Titanium",
+        "White Titanium"
+      ],
+      "sizes": [
+        "256GB",
+        "512GB",
+        "1TB"
+      ]
+    },
+    "images": [
+      "https://loremflickr.com/320/320/iphone,smartphone?lock=1",
+      "https://loremflickr.com/320/320/iphone,pro,max?lock=101",
+      "https://loremflickr.com/320/320/iphone,back,phone?lock=102"
+    ],
+    "reviews": [
+      {
+        "id": 101,
+        "user": "Maria C.",
+        "rating": 5,
+        "comment": "Worth every peso! The camera quality is insane.",
+        "date": "2026-05-12"
+      },
+      {
+        "id": 102,
+        "user": "Juan D.",
+        "rating": 5,
+        "comment": "Super fast and the battery lasts all day.",
+        "date": "2026-04-28"
+      },
+      {
+        "id": 103,
+        "user": "Ana R.",
+        "rating": 4,
+        "comment": "Great phone but a bit heavy. Otherwise perfect.",
+        "date": "2026-04-10"
+      }
+    ],
+    "seller": {
+      "name": "Apple PH Official Store",
+      "rating": 4.9,
+      "sales": 12500,
+      "response": "98%",
+      "joined": "2023"
+    }
+  },
+  {
+    "id": 2,
+    "name": "Samsung Galaxy S24 Ultra",
+    "category": "electronics",
+    "price": 79990,
+    "origPrice": 89990,
+    "image": "https://loremflickr.com/320/320/samsung,galaxy,phone?lock=2",
+    "rating": 4.7,
+    "sold": 980,
+    "stock": 25,
+    "badge": "-11%",
+    "desc": "Samsung Galaxy S24 Ultra with built-in S Pen, 200MP camera, and advanced Galaxy AI features. The ultimate productivity companion.",
+    "variants": {
+      "colors": [
+        "Titanium Gray",
+        "Titanium Violet",
+        "Titanium Yellow"
+      ],
+      "sizes": [
+        "256GB",
+        "512GB"
+      ]
+    },
+    "images": [
+      "https://loremflickr.com/320/320/samsung,galaxy,phone?lock=2",
+      "https://loremflickr.com/320/320/samsung,s24,ultra?lock=201"
+    ],
+    "reviews": [
+      {
+        "id": 201,
+        "user": "Carlos M.",
+        "rating": 5,
+        "comment": "Best Android phone I have ever used!",
+        "date": "2026-05-08"
+      },
+      {
+        "id": 202,
+        "user": "Bella T.",
+        "rating": 4,
+        "comment": "Love the S Pen. Camera is impressive.",
+        "date": "2026-04-20"
+      }
+    ],
+    "seller": null
+  },
+  {
+    "id": 3,
+    "name": "Wireless Bluetooth Earbuds Pro",
+    "category": "electronics",
+    "price": 1299,
+    "origPrice": 2499,
+    "image": "https://loremflickr.com/320/320/earbuds,headphones?lock=3",
+    "rating": 4.5,
+    "sold": 8230,
+    "stock": 200,
+    "badge": "-48%",
+    "desc": "Premium wireless earbuds with active noise cancellation, intuitive touch controls, and long-lasting battery life for all-day listening.",
+    "variants": {
+      "colors": [
+        "White",
+        "Black",
+        "Navy"
+      ]
+    },
+    "images": [
+      "https://loremflickr.com/320/320/earbuds,headphones?lock=3",
+      "https://loremflickr.com/320/320/earbuds,wireless?lock=301"
+    ],
+    "reviews": [
+      {
+        "id": 301,
+        "user": "Dennis L.",
+        "rating": 5,
+        "comment": "ANC is top-notch. Great for commuting.",
+        "date": "2026-05-14"
+      },
+      {
+        "id": 302,
+        "user": "Kate P.",
+        "rating": 4,
+        "comment": "Comfortable fit and sound quality is excellent.",
+        "date": "2026-05-01"
+      },
+      {
+        "id": 303,
+        "user": "Rico S.",
+        "rating": 4,
+        "comment": "Battery life is amazing. Value for money.",
+        "date": "2026-04-15"
+      }
+    ],
+    "seller": null
+  },
+  {
+    "id": 4,
+    "name": "Mechanical Gaming Keyboard RGB",
+    "category": "electronics",
+    "price": 2499,
+    "origPrice": 3999,
+    "image": "https://loremflickr.com/320/320/keyboard,gaming?lock=4",
+    "rating": 4.6,
+    "sold": 3450,
+    "stock": 75,
+    "badge": null,
+    "desc": "Full RGB mechanical keyboard with durable blue switches, N-key rollover, and programmable macro keys. Built for serious gamers.",
+    "variants": {
+      "colors": [
+        "Black",
+        "White"
+      ]
+    },
+    "reviews": [
+      {
+        "id": 401,
+        "user": "Gamer_101",
+        "rating": 5,
+        "comment": "The RGB is gorgeous and the switches feel great.",
+        "date": "2026-05-10"
+      },
+      {
+        "id": 402,
+        "user": "TechNerd",
+        "rating": 4,
+        "comment": "Solid build quality. Software could be better.",
+        "date": "2026-04-22"
+      }
+    ],
+    "seller": null
+  },
+  {
+    "id": 5,
+    "name": "Premium Cotton Casual T-Shirt",
+    "category": "fashion",
+    "price": 399,
+    "origPrice": 799,
+    "image": "https://loremflickr.com/320/320/tshirt,cotton,clothing?lock=5",
+    "rating": 4.4,
+    "sold": 12500,
+    "stock": 500,
+    "badge": "-50%",
+    "desc": "Ultra-soft premium cotton t-shirt with a modern fit. Available in multiple colors and sizes for a versatile everyday look.",
+    "variants": {
+      "colors": [
+        "White",
+        "Black",
+        "Navy",
+        "Gray"
+      ],
+      "sizes": [
+        "S",
+        "M",
+        "L",
+        "XL"
+      ]
+    },
+    "images": [
+      "https://loremflickr.com/320/320/tshirt,cotton,clothing?lock=5",
+      "https://loremflickr.com/320/320/tshirt,white?lock=501",
+      "https://loremflickr.com/320/320/tshirt,black?lock=502"
+    ],
+    "reviews": [
+      {
+        "id": 501,
+        "user": "Sofia G.",
+        "rating": 5,
+        "comment": "Sobrang lambot! Perfect for daily use.",
+        "date": "2026-05-15"
+      },
+      {
+        "id": 502,
+        "user": "Mark A.",
+        "rating": 4,
+        "comment": "Good quality for the price. True to size.",
+        "date": "2026-05-02"
+      },
+      {
+        "id": 503,
+        "user": "Jenny K.",
+        "rating": 4,
+        "comment": "Bought 3 colors. Will buy again!",
+        "date": "2026-04-18"
+      }
+    ],
+    "seller": {
+      "name": "Fashion Hub Manila",
+      "rating": 4.7,
+      "sales": 45200,
+      "response": "95%",
+      "joined": "2022"
+    }
+  },
+  {
+    "id": 6,
+    "name": "Classic Fit Denim Jacket",
+    "category": "fashion",
+    "price": 1499,
+    "origPrice": 2999,
+    "image": "https://loremflickr.com/320/320/denim,jacket?lock=6",
+    "rating": 4.6,
+    "sold": 2780,
+    "stock": 120,
+    "badge": "-50%",
+    "desc": "Timeless denim jacket crafted from high-quality denim. Features a classic cut that pairs perfectly with any outfit.",
+    "variants": {
+      "colors": [
+        "Light Blue",
+        "Dark Blue"
+      ],
+      "sizes": [
+        "S",
+        "M",
+        "L",
+        "XL"
+      ]
+    },
+    "reviews": [
+      {
+        "id": 601,
+        "user": "Paolo N.",
+        "rating": 5,
+        "comment": "Classic look and great fit. Highly recommended.",
+        "date": "2026-05-06"
+      },
+      {
+        "id": 602,
+        "user": "Liza M.",
+        "rating": 4,
+        "comment": "Nice quality denim. A bit stiff at first but loosens up.",
+        "date": "2026-04-25"
+      }
+    ],
+    "seller": null
+  },
+  {
+    "id": 7,
+    "name": "Air Max Running Shoes",
+    "category": "fashion",
+    "price": 5499,
+    "origPrice": 7999,
+    "image": "https://loremflickr.com/320/320/running,shoes,sneakers?lock=7",
+    "rating": 4.7,
+    "sold": 4120,
+    "stock": 60,
+    "badge": null,
+    "desc": "Lightweight running shoes with responsive air cushioning technology. Designed for comfort and performance on every run.",
+    "variants": {
+      "colors": [
+        "Black/White",
+        "Blue/Orange",
+        "All Black"
+      ],
+      "sizes": [
+        "7",
+        "8",
+        "9",
+        "10",
+        "11"
+      ]
+    },
+    "reviews": [
+      {
+        "id": 701,
+        "user": "RunnerJay",
+        "rating": 5,
+        "comment": "Best running shoes I have owned! Super comfy.",
+        "date": "2026-05-11"
+      },
+      {
+        "id": 702,
+        "user": "FitMom",
+        "rating": 5,
+        "comment": "Great support for daily jogging. Worth it!",
+        "date": "2026-04-30"
+      },
+      {
+        "id": 703,
+        "user": "Coach R.",
+        "rating": 4,
+        "comment": "Durable and lightweight. Good value.",
+        "date": "2026-04-12"
+      }
+    ],
+    "seller": null
+  },
+  {
+    "id": 8,
+    "name": "Slim Fit Chino Pants",
+    "category": "fashion",
+    "price": 899,
+    "origPrice": 1499,
+    "image": "https://loremflickr.com/320/320/chino,pants,trousers?lock=8",
+    "rating": 4.3,
+    "sold": 6750,
+    "stock": 300,
+    "badge": "-40%",
+    "desc": "Modern slim fit chino pants in stretch cotton twill. Comfortable enough for casual wear, polished enough for the office.",
+    "variants": {
+      "colors": [
+        "Khaki",
+        "Navy",
+        "Black",
+        "Gray"
+      ],
+      "sizes": [
+        "28",
+        "30",
+        "32",
+        "34",
+        "36"
+      ]
+    },
+    "reviews": [
+      {
+        "id": 801,
+        "user": "OfficeGuy",
+        "rating": 4,
+        "comment": "Perfect for office wear. Comfortable fit.",
+        "date": "2026-05-09"
+      },
+      {
+        "id": 802,
+        "user": "Dave C.",
+        "rating": 4,
+        "comment": "Good quality fabric. Runs slightly small.",
+        "date": "2026-04-19"
+      }
+    ],
+    "seller": null
+  },
+  {
+    "id": 9,
+    "name": "Decorative Throw Pillow Set of 4",
+    "category": "home",
+    "price": 799,
+    "origPrice": 1499,
+    "image": "https://loremflickr.com/320/320/pillow,cushion,decor?lock=9",
+    "rating": 4.5,
+    "sold": 5630,
+    "stock": 180,
+    "badge": null,
+    "desc": "Premium throw pillow set to elevate your living space. Soft, durable fabric with hidden zipper for easy cleaning.",
+    "images": [
+      "https://loremflickr.com/320/320/pillow,cushion,decor?lock=9",
+      "https://loremflickr.com/320/320/pillow,set?lock=901"
+    ],
+    "reviews": [
+      {
+        "id": 901,
+        "user": "HomeBody",
+        "rating": 5,
+        "comment": "Transformed my living room! Gorgeous colors.",
+        "date": "2026-05-13"
+      },
+      {
+        "id": 902,
+        "user": "Tita L.",
+        "rating": 4,
+        "comment": "Soft and nice quality. Matagal mag-deliver.",
+        "date": "2026-04-27"
+      }
+    ],
+    "seller": null
+  },
+  {
+    "id": 10,
+    "name": "LED Desk Lamp with USB Charging",
+    "category": "home",
+    "price": 649,
+    "origPrice": 1299,
+    "image": "https://loremflickr.com/320/320/desk,lamp,lighting?lock=10",
+    "rating": 4.4,
+    "sold": 8940,
+    "stock": 250,
+    "badge": "-50%",
+    "desc": "Adjustable LED desk lamp with 3 brightness levels, eye-care technology, and a built-in USB charging port for your devices.",
+    "reviews": [
+      {
+        "id": 1001,
+        "user": "StudentPrincess",
+        "rating": 5,
+        "comment": "Perfect for studying! The USB port is so handy.",
+        "date": "2026-05-07"
+      },
+      {
+        "id": 1002,
+        "user": "WFH_Dad",
+        "rating": 4,
+        "comment": "Good lamp for work from home setup.",
+        "date": "2026-04-21"
+      },
+      {
+        "id": 1003,
+        "user": "Nurse_Ann",
+        "rating": 4,
+        "comment": "Brightness levels are great. Easy on the eyes.",
+        "date": "2026-04-05"
+      }
+    ],
+    "seller": null
+  },
+  {
+    "id": 11,
+    "name": "Stainless Steel Knife Set 5-Piece",
+    "category": "home",
+    "price": 999,
+    "origPrice": 1999,
+    "image": "https://loremflickr.com/320/320/kitchen,knife,set?lock=11",
+    "rating": 4.6,
+    "sold": 3210,
+    "stock": 90,
+    "badge": null,
+    "desc": "Professional-grade stainless steel knife set with ergonomic handles. Precision-forged blades for effortless cutting.",
+    "reviews": [
+      {
+        "id": 1101,
+        "user": "Chef_B",
+        "rating": 5,
+        "comment": "Sharp and balanced. Professional quality!",
+        "date": "2026-05-05"
+      },
+      {
+        "id": 1102,
+        "user": "MamaRose",
+        "rating": 4,
+        "comment": "Makes cooking so much easier. Good value.",
+        "date": "2026-04-16"
+      }
+    ],
+    "seller": null
+  },
+  {
+    "id": 12,
+    "name": "Floating Wall Shelf Set",
+    "category": "home",
+    "price": 549,
+    "origPrice": 999,
+    "image": "https://loremflickr.com/320/320/wall,shelf,floating?lock=12",
+    "rating": 4.3,
+    "sold": 4520,
+    "stock": 400,
+    "badge": "-45%",
+    "desc": "Set of 2 floating wall shelves with a sleek design. Easy to install and perfect for displaying decor in any room.",
+    "reviews": [
+      {
+        "id": 1201,
+        "user": "Dekor_Kween",
+        "rating": 5,
+        "comment": "Easy to install and looks premium!",
+        "date": "2026-05-03"
+      },
+      {
+        "id": 1202,
+        "user": "ApartmentLife",
+        "rating": 4,
+        "comment": "Great for small spaces. Sturdy enough.",
+        "date": "2026-04-14"
+      }
+    ],
+    "seller": null
+  },
+  {
+    "id": 13,
+    "name": "Vitamin C Skincare Set",
+    "category": "beauty",
+    "price": 1299,
+    "origPrice": 2499,
+    "image": "https://loremflickr.com/320/320/skincare,vitamin,beauty?lock=13",
+    "rating": 4.7,
+    "sold": 7610,
+    "stock": 150,
+    "badge": "-48%",
+    "desc": "Complete Vitamin C skincare regimen including cleanser, toner, serum, and moisturizer. Achieve radiant, glowing skin.",
+    "variants": {
+      "sizes": [
+        "Travel Kit",
+        "Full Size Set"
+      ]
+    },
+    "images": [
+      "https://loremflickr.com/320/320/skincare,vitamin,beauty?lock=13",
+      "https://loremflickr.com/320/320/skincare,set?lock=1301"
+    ],
+    "reviews": [
+      {
+        "id": 1301,
+        "user": "GlowUpGirl",
+        "rating": 5,
+        "comment": "My skin looks so bright! Love this set.",
+        "date": "2026-05-14"
+      },
+      {
+        "id": 1302,
+        "user": "Beauty_Junkie",
+        "rating": 5,
+        "comment": "Complete package. Sulit na sulit!",
+        "date": "2026-04-29"
+      },
+      {
+        "id": 1303,
+        "user": "SensitiveSkin",
+        "rating": 4,
+        "comment": "Gentle on my skin and works well.",
+        "date": "2026-04-11"
+      }
+    ],
+    "seller": null
+  },
+  {
+    "id": 14,
+    "name": "Matte Liquid Lipstick",
+    "category": "beauty",
+    "price": 249,
+    "origPrice": 499,
+    "image": "https://loremflickr.com/320/320/lipstick,cosmetics,makeup?lock=14",
+    "rating": 4.5,
+    "sold": 15200,
+    "stock": 600,
+    "badge": "-50%",
+    "desc": "Long-wear matte liquid lipstick that stays put all day. Transfer-proof and comfortable on the lips with intense color payoff.",
+    "variants": {
+      "colors": [
+        "Ruby Red",
+        "Nude",
+        "Berry",
+        "Coral"
+      ]
+    },
+    "images": [
+      "https://loremflickr.com/320/320/lipstick,cosmetics,makeup?lock=14",
+      "https://loremflickr.com/320/320/lipstick,red?lock=1401"
+    ],
+    "reviews": [
+      {
+        "id": 1401,
+        "user": "LipstickLover",
+        "rating": 5,
+        "comment": "Stays all day! Hindi nagfa-flake.",
+        "date": "2026-05-10"
+      },
+      {
+        "id": 1402,
+        "user": "Makeup_Artista",
+        "rating": 4,
+        "comment": "Great color payoff. A bit drying.",
+        "date": "2026-04-24"
+      }
+    ],
+    "seller": null
+  },
+  {
+    "id": 15,
+    "name": "Eau de Parfum 50ml",
+    "category": "beauty",
+    "price": 899,
+    "origPrice": 1799,
+    "image": "https://loremflickr.com/320/320/perfume,fragrance?lock=15",
+    "rating": 4.6,
+    "sold": 9830,
+    "stock": 85,
+    "badge": null,
+    "desc": "A captivating fresh scent with notes of bergamot, jasmine, and sandalwood. Perfect for both daily wear and special occasions.",
+    "images": [
+      "https://loremflickr.com/320/320/perfume,fragrance?lock=15",
+      "https://loremflickr.com/320/320/perfume,bottle?lock=1501"
+    ],
+    "reviews": [
+      {
+        "id": 1501,
+        "user": "FragranceFan",
+        "rating": 5,
+        "comment": "Smells amazing! Long-lasting scent.",
+        "date": "2026-05-12"
+      },
+      {
+        "id": 1502,
+        "user": "GiftGiver",
+        "rating": 4,
+        "comment": "Bought as a gift. The recipient loved it!",
+        "date": "2026-04-26"
+      },
+      {
+        "id": 1503,
+        "user": "DailyUser",
+        "rating": 5,
+        "comment": "My new signature scent. Perfect for everyday.",
+        "date": "2026-04-08"
+      }
+    ],
+    "seller": null
+  },
+  {
+    "id": 16,
+    "name": "Ionic Hair Dryer 1800W",
+    "category": "beauty",
+    "price": 1199,
+    "origPrice": 1999,
+    "image": "https://loremflickr.com/320/320/hair,dryer,beauty?lock=16",
+    "rating": 4.4,
+    "sold": 4380,
+    "stock": 110,
+    "badge": "-40%",
+    "desc": "Powerful hair dryer with ionic technology for frizz-free, shiny results. Features 3 heat settings and a concentrator nozzle.",
+    "reviews": [
+      {
+        "id": 1601,
+        "user": "Salon_Owner",
+        "rating": 5,
+        "comment": "Professional quality at a great price.",
+        "date": "2026-05-06"
+      },
+      {
+        "id": 1602,
+        "user": "Busy_Mom",
+        "rating": 4,
+        "comment": "Dries hair fast. Less frizz than my old one.",
+        "date": "2026-04-17"
+      }
+    ],
+    "seller": null
+  },
+  {
+    "id": 17,
+    "name": "Barista Blend Coffee Beans 500g",
+    "category": "food",
+    "price": 599,
+    "origPrice": 899,
+    "image": "https://loremflickr.com/320/320/coffee,beans,roasted?lock=17",
+    "rating": 4.8,
+    "sold": 11200,
+    "stock": 350,
+    "badge": null,
+    "desc": "Premium Arabica and Robusta blend coffee beans. Medium roast with notes of dark chocolate and caramel for the perfect cup.",
+    "variants": {
+      "sizes": [
+        "250g",
+        "500g",
+        "1kg"
+      ]
+    },
+    "images": [
+      "https://loremflickr.com/320/320/coffee,beans,roasted?lock=17",
+      "https://loremflickr.com/320/320/coffee,bag?lock=1701"
+    ],
+    "reviews": [
+      {
+        "id": 1701,
+        "user": "CoffeeSnob",
+        "rating": 5,
+        "comment": "Best beans in this price range! Sarap!",
+        "date": "2026-05-15"
+      },
+      {
+        "id": 1702,
+        "user": "Morning_Ritual",
+        "rating": 5,
+        "comment": "Rich flavor and fresh roast. Will reorder.",
+        "date": "2026-05-01"
+      },
+      {
+        "id": 1703,
+        "user": "HomeBarista",
+        "rating": 4,
+        "comment": "Good crema. Smooth taste.",
+        "date": "2026-04-13"
+      }
+    ],
+    "seller": null
+  },
+  {
+    "id": 18,
+    "name": "Classic Milk Tea Powder 1kg",
+    "category": "food",
+    "price": 449,
+    "origPrice": 799,
+    "image": "https://loremflickr.com/320/320/milk,tea,bubble,drink?lock=18",
+    "rating": 4.6,
+    "sold": 14500,
+    "stock": 500,
+    "badge": "-44%",
+    "desc": "Authentic classic milk tea powder. Just add water and ice for a refreshing, café-quality drink in seconds.",
+    "reviews": [
+      {
+        "id": 1801,
+        "user": "MilkTea_Stan",
+        "rating": 5,
+        "comment": "Tastes just like shop-bought milk tea!",
+        "date": "2026-05-11"
+      },
+      {
+        "id": 1802,
+        "user": "Student_Budget",
+        "rating": 4,
+        "comment": "Sulit na sulit for 1kg! Masarap.",
+        "date": "2026-04-23"
+      }
+    ],
+    "seller": null
+  },
+  {
+    "id": 19,
+    "name": "Protein Bars Variety Pack 12ct",
+    "category": "food",
+    "price": 799,
+    "origPrice": 1299,
+    "image": "https://loremflickr.com/320/320/protein,bar,healthy,snack?lock=19",
+    "rating": 4.5,
+    "sold": 6730,
+    "stock": 200,
+    "badge": null,
+    "desc": "Delicious high-protein bars with 20g protein per serving. The perfect post-workout snack or healthy on-the-go option.",
+    "reviews": [
+      {
+        "id": 1901,
+        "user": "FitnessBuff",
+        "rating": 5,
+        "comment": "Great macros and actually tastes good!",
+        "date": "2026-05-09"
+      },
+      {
+        "id": 1902,
+        "user": "GymRat22",
+        "rating": 4,
+        "comment": "Convenient post-workout snack. Good value.",
+        "date": "2026-04-20"
+      },
+      {
+        "id": 1903,
+        "user": "Healthy_Eater",
+        "rating": 4,
+        "comment": "Love the variety pack. Keeps me full.",
+        "date": "2026-04-07"
+      }
+    ],
+    "seller": null
+  },
+  {
+    "id": 20,
+    "name": "Ceremonial Grade Matcha Powder",
+    "category": "food",
+    "price": 349,
+    "origPrice": 699,
+    "image": "https://loremflickr.com/320/320/matcha,green,tea,powder?lock=20",
+    "rating": 4.7,
+    "sold": 8910,
+    "stock": 180,
+    "badge": "-50%",
+    "desc": "Premium Japanese matcha powder from Uji, Kyoto. Stone-ground and ceremonial grade, perfect for lattes and baking.",
+    "reviews": [
+      {
+        "id": 2001,
+        "user": "TeaLoverPH",
+        "rating": 5,
+        "comment": "Vibrant green and smooth taste. Authentic!",
+        "date": "2026-05-08"
+      },
+      {
+        "id": 2002,
+        "user": "Baker_Shel",
+        "rating": 4,
+        "comment": "Great for baking and lattes. High quality.",
+        "date": "2026-04-19"
+      }
+    ],
+    "seller": null
+  },
+  {
+    "id": 21,
+    "name": "Fast Wireless Charger Pad",
+    "category": "electronics",
+    "price": 599,
+    "origPrice": 1199,
+    "image": "https://loremflickr.com/320/320/wireless,charger,phone?lock=21",
+    "rating": 4.3,
+    "sold": 12300,
+    "stock": 300,
+    "badge": null,
+    "desc": "Qi-compatible fast wireless charging pad with smart temperature control. Works with all Qi-enabled smartphones and earbuds.",
+    "reviews": [
+      {
+        "id": 2101,
+        "user": "TechSavvy",
+        "rating": 5,
+        "comment": "Charges fast and looks sleek on my desk.",
+        "date": "2026-05-04"
+      },
+      {
+        "id": 2102,
+        "user": "Gadget_Girl",
+        "rating": 4,
+        "comment": "Works perfectly with my iPhone.",
+        "date": "2026-04-15"
+      }
+    ],
+    "seller": null
+  },
+  {
+    "id": 22,
+    "name": "Polarized Aviator Sunglasses",
+    "category": "fashion",
+    "price": 499,
+    "origPrice": 1499,
+    "image": "https://loremflickr.com/320/320/sunglasses,aviator,fashion?lock=22",
+    "rating": 4.4,
+    "sold": 7890,
+    "stock": 250,
+    "badge": "-67%",
+    "desc": "Classic aviator sunglasses with polarized UV400 protection lenses. Lightweight metal frame for all-day comfort.",
+    "variants": {
+      "colors": [
+        "Gold/Green",
+        "Gold/Brown",
+        "Black/Gray"
+      ]
+    },
+    "images": [
+      "https://loremflickr.com/320/320/sunglasses,aviator,fashion?lock=22",
+      "https://loremflickr.com/320/320/sunglasses,gold?lock=2201"
+    ],
+    "reviews": [
+      {
+        "id": 2201,
+        "user": "RoadTrip_Guy",
+        "rating": 5,
+        "comment": "Great for driving. Reduces glare perfectly.",
+        "date": "2026-05-13"
+      },
+      {
+        "id": 2202,
+        "user": "Fashionista_Me",
+        "rating": 4,
+        "comment": "Stylish and affordable. Love the case too.",
+        "date": "2026-04-28"
+      },
+      {
+        "id": 2203,
+        "user": "Beach_Babe",
+        "rating": 4,
+        "comment": "Perfect for the beach! Lightweight.",
+        "date": "2026-04-09"
+      }
+    ],
+    "seller": null
+  },
+  {
+    "id": 23,
+    "name": "Eco-Friendly Bamboo Cutting Board",
+    "category": "home",
+    "price": 399,
+    "origPrice": 699,
+    "image": "https://loremflickr.com/320/320/bamboo,cutting,board,kitchen?lock=23",
+    "rating": 4.5,
+    "sold": 6540,
+    "stock": 220,
+    "badge": null,
+    "desc": "Sustainable bamboo cutting board with juice groove. Naturally antimicrobial and gentler on your knives than plastic.",
+    "reviews": [
+      {
+        "id": 2301,
+        "user": "EcoWarrior",
+        "rating": 5,
+        "comment": "Love that it is eco-friendly and durable.",
+        "date": "2026-05-02"
+      },
+      {
+        "id": 2302,
+        "user": "HomeCook_PH",
+        "rating": 4,
+        "comment": "Good size and the juice groove is handy.",
+        "date": "2026-04-14"
+      }
+    ],
+    "seller": null
+  },
+  {
+    "id": 24,
+    "name": "Hydrating Sheet Mask Box 10pcs",
+    "category": "beauty",
+    "price": 349,
+    "origPrice": 699,
+    "image": "https://loremflickr.com/320/320/sheet,mask,face,beauty?lock=24",
+    "rating": 4.6,
+    "sold": 18500,
+    "stock": 0,
+    "badge": "-50%",
+    "desc": "Intensely hydrating sheet masks infused with collagen and hyaluronic acid. Give your skin an instant glow boost.",
+    "images": [
+      "https://loremflickr.com/320/320/sheet,mask,face,beauty?lock=24",
+      "https://loremflickr.com/320/320/face,mask,skincare?lock=2401"
+    ],
+    "reviews": [
+      {
+        "id": 2401,
+        "user": "Skincare_Addict",
+        "rating": 5,
+        "comment": "Holy grail mask! Super hydrated after use.",
+        "date": "2026-05-14"
+      },
+      {
+        "id": 2402,
+        "user": "WeddingPrep",
+        "rating": 5,
+        "comment": "Using this before my wedding. Glowing skin!",
+        "date": "2026-05-01"
+      },
+      {
+        "id": 2403,
+        "user": "NightShiftRN",
+        "rating": 4,
+        "comment": "Refreshing and soothing. Good for tired skin.",
+        "date": "2026-04-10"
+      }
+    ],
+    "seller": null
+  }
+]
