@@ -92,6 +92,23 @@ window.ShopperDB = (function () {
       .catch(e => console.warn('[ShopperDB] saveWishlist:', e.message)));
   }
 
+  // --- Auth (email + password accounts) ------------------------------------
+
+  async function me() {
+    if (!enabled) return null;
+    try { return (await api('/auth/me')).user; }
+    catch { return null; }
+  }
+  function register(email, password) {
+    return api('/auth/register', { method: 'POST', body: JSON.stringify({ email, password }) });
+  }
+  function login(email, password) {
+    return api('/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) });
+  }
+  function logout() {
+    return api('/auth/logout', { method: 'POST' });
+  }
+
   // --- Checkout (server-authoritative: validates stock, computes total) -----
 
   async function checkout(payload) {
@@ -121,6 +138,7 @@ window.ShopperDB = (function () {
     loadCart, saveCart,
     loadWishlist, saveWishlist,
     loadOrders, saveOrders,
-    checkout
+    checkout,
+    me, register, login, logout
   };
 })();

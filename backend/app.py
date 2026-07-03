@@ -18,6 +18,8 @@ from datetime import datetime, timezone
 from flask import Flask, jsonify, request, session, send_from_directory
 from flask_cors import CORS
 from flask_sqlalchemy import SQLAlchemy
+from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
 
 try:
     from dotenv import load_dotenv
@@ -28,6 +30,9 @@ except Exception:
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 ROOT_DIR = os.path.dirname(BASE_DIR)  # repo root — the static frontend lives here
 SEED_FILE = os.path.join(BASE_DIR, "seed_products.json")
+UPLOAD_DIR = os.path.join(BASE_DIR, "uploads")
+ALLOWED_IMG = {".png", ".jpg", ".jpeg", ".gif", ".webp", ".svg"}
+os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 
 def database_url():
@@ -172,17 +177,35 @@ class Order(db.Model):
         }
 
 
+class User(db.Model):
+    __tablename__ = "users"
+    id = db.Column(db.Text, primary_key=True)
+    email = db.Column(db.Text, unique=True, nullable=False, index=True)
+    password_hash = db.Column(db.Text, nullable=False)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+
+    def to_dict(self):
+        return {"id": self.id, "email": self.email}
+
+
 # ---------------------------------------------------------------------------
-# Session helper
+# Session / owner helpers
 # ---------------------------------------------------------------------------
 
 def current_sid():
+    """The guest session id (per browser)."""
     sid = session.get("sid")
     if not sid:
         sid = uuid.uuid4().hex
         session["sid"] = sid
         session.permanent = True
     return sid
+
+
+def current_owner():
+    """The key that owns cart/wishlist/orders: the logged-in user id if signed
+    in, otherwise the guest session id."""
+    return session.get("uid") or current_sid()
 
 
 # ---------------------------------------------------------------------------
@@ -252,14 +275,14 @@ def add_review(product_id):
 
 @app.get("/api/cart")
 def get_cart():
-    sid = current_sid()
+    sid = current_owner()
     items = CartItem.query.filter_by(session_id=sid).all()
     return jsonify([{"id": i.product_id, "qty": i.qty} for i in items])
 
 
 @app.put("/api/cart")
 def put_cart():
-    sid = current_sid()
+    sid = current_owner()
     data = request.get_json(force=True, silent=True) or []
     CartItem.query.filter_by(session_id=sid).delete()
     for item in data:
@@ -275,14 +298,14 @@ def put_cart():
 
 @app.get("/api/wishlist")
 def get_wishlist():
-    sid = current_sid()
+    sid = current_owner()
     items = WishlistItem.query.filter_by(session_id=sid).all()
     return jsonify([i.product_id for i in items])
 
 
 @app.put("/api/wishlist")
 def put_wishlist():
-    sid = current_sid()
+    sid = current_owner()
     data = request.get_json(force=True, silent=True) or []
     WishlistItem.query.filter_by(session_id=sid).delete()
     for pid in data:
@@ -296,7 +319,7 @@ def put_wishlist():
 
 @app.get("/api/orders")
 def get_orders():
-    sid = current_sid()
+    sid = current_owner()
     orders = Order.query.filter_by(session_id=sid).order_by(Order.id.desc()).all()
     return jsonify([o.to_dict() for o in orders])
 
@@ -304,7 +327,7 @@ def get_orders():
 @app.put("/api/orders")
 def put_orders():
     """Upsert the visitor's orders (append + status/rating updates)."""
-    sid = current_sid()
+    sid = current_owner()
     data = request.get_json(force=True, silent=True) or []
     for o in data:
         try:
@@ -394,7 +417,7 @@ def price_cart(items, coupon=None, gift_wrap=False, delivery_method="delivery",
 def checkout():
     """Authoritative checkout: validates stock, computes the total from DB
     prices, decrements stock, and records the order — all server-side."""
-    sid = current_sid()
+    sid = current_owner()
     data = request.get_json(force=True, silent=True) or {}
     priced, err = price_cart(
         data.get("items", []),
@@ -435,6 +458,74 @@ def checkout():
         k: priced[k] for k in ("subtotal", "bulk_discount", "coupon_discount",
                                "gift", "delivery", "points_discount", "total")
     }, payment=payment), 201
+
+
+# ---------------------------------------------------------------------------
+# Auth (email + password)
+# ---------------------------------------------------------------------------
+
+def migrate_guest_to_user(guest_sid, uid):
+    """Move (and merge) a guest session's cart/wishlist/orders onto a user."""
+    if guest_sid == uid:
+        return
+    for gi in CartItem.query.filter_by(session_id=guest_sid).all():
+        existing = db.session.get(CartItem, (uid, gi.product_id))
+        if existing:
+            existing.qty += gi.qty
+        else:
+            db.session.add(CartItem(session_id=uid, product_id=gi.product_id, qty=gi.qty))
+        db.session.delete(gi)
+    for gw in WishlistItem.query.filter_by(session_id=guest_sid).all():
+        if not db.session.get(WishlistItem, (uid, gw.product_id)):
+            db.session.add(WishlistItem(session_id=uid, product_id=gw.product_id))
+        db.session.delete(gw)
+    Order.query.filter_by(session_id=guest_sid).update({"session_id": uid})
+    db.session.commit()
+
+
+@app.post("/api/auth/register")
+def auth_register():
+    data = request.get_json(force=True, silent=True) or {}
+    email = (data.get("email") or "").strip().lower()
+    password = data.get("password") or ""
+    if "@" not in email or len(password) < 6:
+        return jsonify(error="a valid email and a password of at least 6 characters are required"), 400
+    if User.query.filter_by(email=email).first():
+        return jsonify(error="email already registered"), 409
+    guest = current_sid()
+    user = User(id=uuid.uuid4().hex, email=email, password_hash=generate_password_hash(password))
+    db.session.add(user)
+    db.session.commit()
+    session["uid"] = user.id
+    migrate_guest_to_user(guest, user.id)
+    return jsonify(ok=True, user=user.to_dict()), 201
+
+
+@app.post("/api/auth/login")
+def auth_login():
+    data = request.get_json(force=True, silent=True) or {}
+    email = (data.get("email") or "").strip().lower()
+    password = data.get("password") or ""
+    user = User.query.filter_by(email=email).first()
+    if not user or not check_password_hash(user.password_hash, password):
+        return jsonify(error="invalid email or password"), 401
+    guest = current_sid()
+    session["uid"] = user.id
+    migrate_guest_to_user(guest, user.id)
+    return jsonify(ok=True, user=user.to_dict())
+
+
+@app.post("/api/auth/logout")
+def auth_logout():
+    session.pop("uid", None)
+    return jsonify(ok=True)
+
+
+@app.get("/api/auth/me")
+def auth_me():
+    uid = session.get("uid")
+    user = db.session.get(User, uid) if uid else None
+    return jsonify(user=user.to_dict() if user else None)
 
 
 # ---------------------------------------------------------------------------
@@ -546,6 +637,25 @@ def admin_delete_product(product_id):
     db.session.delete(product)
     db.session.commit()
     return jsonify(ok=True)
+
+
+@app.post("/api/admin/upload")
+@admin_required
+def admin_upload():
+    f = request.files.get("file")
+    if not f or not f.filename:
+        return jsonify(error="no file uploaded"), 400
+    ext = os.path.splitext(f.filename)[1].lower()
+    if ext not in ALLOWED_IMG:
+        return jsonify(error="unsupported file type"), 400
+    name = secure_filename(uuid.uuid4().hex + ext)
+    f.save(os.path.join(UPLOAD_DIR, name))
+    return jsonify(ok=True, url="/uploads/" + name), 201
+
+
+@app.get("/uploads/<path:filename>")
+def serve_upload(filename):
+    return send_from_directory(UPLOAD_DIR, filename)
 
 
 # ---------------------------------------------------------------------------

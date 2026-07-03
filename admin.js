@@ -91,6 +91,23 @@ function flash(btn, text) {
   setTimeout(() => { btn.textContent = old; }, 1200);
 }
 
+$('#uploadBtn').addEventListener('click', async () => {
+  const file = $('#np_file').files[0];
+  const msg = $('#addMsg'); msg.textContent = ''; msg.className = 'msg';
+  if (!file) { msg.textContent = 'Choose an image file first.'; msg.className = 'msg err'; return; }
+  const fd = new FormData();
+  fd.append('file', file);
+  try {
+    // note: no Content-Type header — the browser sets the multipart boundary
+    const res = await fetch(BASE + '/admin/upload', { method: 'POST', credentials: 'include', body: fd });
+    const body = await res.json();
+    if (!res.ok) throw new Error(body.error || 'upload failed');
+    $('#np_image').value = body.url;
+    $('#np_preview').innerHTML = `<img class="thumb" src="${body.url}" alt="preview"> <span class="muted">${body.url}</span>`;
+    msg.textContent = 'Image uploaded.'; msg.className = 'msg ok';
+  } catch (e) { msg.textContent = 'Upload failed: ' + e.message; msg.className = 'msg err'; }
+});
+
 $('#addProductBtn').addEventListener('click', async () => {
   const msg = $('#addMsg'); msg.textContent = ''; msg.className = 'msg';
   const payload = {

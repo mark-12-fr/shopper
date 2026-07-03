@@ -130,3 +130,44 @@ def test_admin_update_order_status(admin):
     r = admin.patch("/api/admin/orders/777001", json={"status": "Shipped"})
     assert r.status_code == 200 and r.get_json()["order"]["status"] == "Shipped"
     assert admin.patch("/api/admin/orders/777001", json={"status": "Bogus"}).status_code == 400
+
+
+def test_admin_upload_image(admin):
+    import io
+    data = {"file": (io.BytesIO(b"\x89PNG\r\n\x1a\nfake"), "pic.png")}
+    r = admin.post("/api/admin/upload", data=data, content_type="multipart/form-data")
+    assert r.status_code == 201
+    url = r.get_json()["url"]
+    assert url.startswith("/uploads/")
+    assert admin.get(url).status_code == 200
+    # unsupported type rejected
+    bad = {"file": (io.BytesIO(b"x"), "evil.exe")}
+    assert admin.post("/api/admin/upload", data=bad, content_type="multipart/form-data").status_code == 400
+
+
+# --- auth (email + password accounts) --------------------------------------
+
+def test_register_login_logout_me():
+    c = flask_app.test_client()
+    assert c.get("/api/auth/me").get_json()["user"] is None
+    r = c.post("/api/auth/register", json={"email": "a@b.com", "password": "secret1"})
+    assert r.status_code == 201 and r.get_json()["user"]["email"] == "a@b.com"
+    assert c.get("/api/auth/me").get_json()["user"]["email"] == "a@b.com"
+    # duplicate email
+    assert flask_app.test_client().post("/api/auth/register", json={"email": "a@b.com", "password": "secret1"}).status_code == 409
+    # bad input
+    assert c.post("/api/auth/register", json={"email": "x", "password": "1"}).status_code == 400
+    c.post("/api/auth/logout")
+    assert c.get("/api/auth/me").get_json()["user"] is None
+    # login wrong / right
+    assert c.post("/api/auth/login", json={"email": "a@b.com", "password": "nope"}).status_code == 401
+    assert c.post("/api/auth/login", json={"email": "a@b.com", "password": "secret1"}).status_code == 200
+
+
+def test_guest_cart_migrates_to_account_on_register():
+    c = flask_app.test_client()
+    c.put("/api/cart", json=[{"id": 5, "qty": 3}])          # as guest
+    c.post("/api/auth/register", json={"email": "m@b.com", "password": "secret1"})
+    assert c.get("/api/cart").get_json() == [{"id": 5, "qty": 3}]  # followed into the account
+    # a fresh guest client does not see it
+    assert flask_app.test_client().get("/api/cart").get_json() == []

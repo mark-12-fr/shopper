@@ -54,11 +54,23 @@ this before `api.js` in `index.html` and the backend CORS will allow it:
 <script>window.SHOPPER_API_BASE = 'https://your-backend.example.com';</script>
 ```
 
+## Accounts
+
+Shoppers can register / log in with an email + password (the person icon in the
+header). A logged-in visitor's cart, wishlist, and orders are tied to their
+account and follow them across devices; a guest's existing cart is merged into
+the account on first sign-in. Passwords are stored hashed (werkzeug).
+
 ## Admin panel
 
 Visit **`/admin`** and log in with `ADMIN_PASSWORD` (default `admin123` — change
-it). From there you can add / edit / delete products and stock, and view all
-orders and move them through Processing → Shipped → Delivered.
+it). From there you can add / edit / delete products and stock (including
+**uploading product images**), and view all orders and move them through
+Processing → Shipped → Delivered.
+
+Uploaded images are stored in `backend/uploads/` and served from `/uploads/...`.
+On ephemeral/serverless hosts use a persistent store (e.g. Supabase Storage or
+an S3 bucket) instead — the local folder won't survive restarts there.
 
 ## Checkout is server-authoritative
 
@@ -89,6 +101,9 @@ simulated unless `PAYMONGO_SECRET_KEY` is set.
 | GET/PUT   | `/api/wishlist`                 | this visitor's wishlist          |
 | GET/PUT   | `/api/orders`                   | this visitor's orders (upsert)   |
 | POST      | `/api/checkout`                 | validate stock + place order     |
+| POST      | `/api/auth/register` `login` `logout` | email/password accounts    |
+| GET       | `/api/auth/me`                  | current logged-in user           |
+| POST      | `/api/admin/upload`             | upload a product image (admin)   |
 | POST      | `/api/admin/login` `logout`     | admin auth                       |
 | GET       | `/api/admin/orders`             | all orders (admin)               |
 | PATCH     | `/api/admin/orders/<id>`        | update order status (admin)      |

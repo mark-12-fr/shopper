@@ -2581,3 +2581,109 @@ renderNotifDot();
 startCountdown();
 renderDeals();
 renderReorderSuggestions();
+
+// Account (email/password) UI — backed by the Flask auth API.
+(function initAccount() {
+  const overlay = document.getElementById('accountOverlay');
+  const modal = document.getElementById('accountModal');
+  const btn = document.getElementById('accountBtn');
+  if (!btn || !modal || !overlay) return;
+
+  let mode = 'login';
+  let currentUser = null;
+  const loggedOut = document.getElementById('accountLoggedOut');
+  const loggedIn = document.getElementById('accountLoggedIn');
+  const title = document.getElementById('accountTitle');
+  const submitBtn = document.getElementById('acctSubmit');
+  const switchText = document.getElementById('acctSwitchText');
+  const switchLink = document.getElementById('acctSwitch');
+  const emailInput = document.getElementById('acctEmail');
+  const pwInput = document.getElementById('acctPassword');
+  const msg = document.getElementById('acctMsg');
+  const emailLabel = document.getElementById('acctEmailLabel');
+
+  function renderState() {
+    const inUser = !!currentUser;
+    loggedOut.style.display = inUser ? 'none' : 'block';
+    loggedIn.style.display = inUser ? 'block' : 'none';
+    btn.classList.toggle('logged-in', inUser);
+    if (inUser) emailLabel.textContent = currentUser.email;
+  }
+  function setMode(m) {
+    mode = m;
+    title.innerHTML = '<i class="fas fa-user-circle"></i> ' + (m === 'login' ? 'Log in' : 'Create account');
+    submitBtn.textContent = m === 'login' ? 'Log in' : 'Create account';
+    switchText.textContent = m === 'login' ? 'No account yet?' : 'Already have an account?';
+    switchLink.textContent = m === 'login' ? 'Create one' : 'Log in';
+    msg.textContent = ''; msg.className = 'acct-msg';
+  }
+  function openModal() {
+    if (!(window.ShopperDB && window.ShopperDB.enabled)) { showToast('Sign-in needs the server (offline mode)'); return; }
+    renderState();
+    overlay.classList.add('active'); modal.classList.add('active');
+  }
+  function closeModal() { overlay.classList.remove('active'); modal.classList.remove('active'); }
+
+  async function reloadUserData() {
+    try {
+      const [c, w, o] = await Promise.all([
+        window.ShopperDB.loadCart(), window.ShopperDB.loadWishlist(), window.ShopperDB.loadOrders()
+      ]);
+      if (Array.isArray(c)) cart = c;
+      if (Array.isArray(w)) wishlist = w;
+      if (Array.isArray(o)) orders = o;
+      localStorage.setItem('shopperCart', JSON.stringify(cart));
+      localStorage.setItem('shopperWishlist', JSON.stringify(wishlist));
+      localStorage.setItem('shopperOrders', JSON.stringify(orders));
+      renderCart(); renderWishlist(); renderOrders(); renderProducts(); renderNotifDot();
+    } catch (e) { /* keep local data */ }
+  }
+
+  btn.addEventListener('click', openModal);
+  document.getElementById('accountClose').addEventListener('click', closeModal);
+  overlay.addEventListener('click', closeModal);
+  switchLink.addEventListener('click', e => { e.preventDefault(); setMode(mode === 'login' ? 'register' : 'login'); });
+
+  submitBtn.addEventListener('click', async () => {
+    const email = emailInput.value.trim();
+    const password = pwInput.value;
+    msg.className = 'acct-msg';
+    if (!email || !password) { msg.textContent = 'Enter your email and password.'; msg.className = 'acct-msg err'; return; }
+    submitBtn.disabled = true;
+    try {
+      const res = await (mode === 'login'
+        ? window.ShopperDB.login(email, password)
+        : window.ShopperDB.register(email, password));
+      currentUser = res.user;
+      emailInput.value = ''; pwInput.value = '';
+      renderState();
+      await reloadUserData();
+      showToast(mode === 'login' ? 'Welcome back!' : 'Account created!', 'success');
+      setTimeout(closeModal, 400);
+    } catch (e) {
+      msg.className = 'acct-msg err';
+      msg.textContent = (e && e.body && e.body.error) ? e.body.error : 'Something went wrong. Try again.';
+    }
+    submitBtn.disabled = false;
+  });
+
+  document.getElementById('acctLogout').addEventListener('click', async () => {
+    await window.ShopperDB.logout().catch(() => {});
+    currentUser = null;
+    renderState();
+    await reloadUserData();
+    showToast('Logged out');
+    closeModal();
+  });
+
+  pwInput.addEventListener('keydown', e => { if (e.key === 'Enter') submitBtn.click(); });
+
+  setMode('login');
+  if (window.ShopperDB) {
+    window.ShopperDB.ready.then(async (connected) => {
+      if (!connected) return;
+      currentUser = await window.ShopperDB.me();
+      renderState();
+    });
+  }
+})();

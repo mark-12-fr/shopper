@@ -78,8 +78,15 @@
             <div><label>Price (₱)</label><input id="np_price" type="number" min="0"></div>
             <div><label>Original price</label><input id="np_orig" type="number" min="0"></div>
             <div><label>Stock</label><input id="np_stock" type="number" min="0"></div>
-            <div><label>Image URL</label><input id="np_image" placeholder="https://..."></div>
+            <div><label>Image URL</label><input id="np_image" placeholder="https:// or upload →"></div>
+            <div><label>Upload image</label>
+              <div style="display:flex;gap:6px;align-items:center;">
+                <input type="file" id="np_file" accept="image/*" style="padding:5px;">
+                <button id="uploadBtn" class="ghost small" type="button">Upload</button>
+              </div>
+            </div>
           </div>
+          <div id="np_preview" style="margin-bottom:8px;"></div>
           <div><label>Description</label><textarea id="np_desc" rows="2"></textarea></div>
           <button id="addProductBtn" style="margin-top:10px;"><i class="fas fa-plus"></i> Add product</button>
           <div id="addMsg" class="msg"></div>
