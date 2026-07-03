@@ -1535,14 +1535,55 @@ document.getElementById('checkoutBtn').addEventListener('click', openCheckout);
 document.getElementById('closeCheckout').addEventListener('click', closeCheckout);
 checkoutOverlay.addEventListener('click', closeCheckout);
 
-document.getElementById('placeOrder').addEventListener('click', () => {
+document.getElementById('placeOrder').addEventListener('click', async () => {
   if (!cart.length) return;
   if (window.innerWidth > 480) {
     const name = document.getElementById('shipName')?.value.trim();
     const addr = document.getElementById('shipAddr')?.value.trim();
     if (!name || !addr) { showToast('Please enter your shipping address'); return; }
   }
-  addOrder();
+  const btn = document.getElementById('placeOrder');
+  if (window.ShopperDB && window.ShopperDB.enabled) {
+    // Server-authoritative checkout: it validates stock and computes the total.
+    const shipName = (document.getElementById('shipName')?.value || '').trim();
+    const shipAddr = (document.getElementById('shipAddr')?.value || '').trim();
+    const shipCity = (document.getElementById('shipCity')?.value || '').trim();
+    const shipProvince = (document.getElementById('shipProvince')?.value || '').trim();
+    const orderedItems = cart.map(i => ({ id: i.id, qty: i.qty }));
+    btn.disabled = true;
+    try {
+      const res = await window.ShopperDB.checkout({
+        items: orderedItems,
+        coupon: document.getElementById('couponInput')?.value || '',
+        gift_wrap: giftWrapping,
+        delivery_method: deliveryMethod,
+        points_redeemed: pointsRedeemed,
+        delivery: getDeliveryDate(),
+        shipping: shipName ? { name: shipName, address: `${shipAddr}, ${shipCity}, ${shipProvince}` } : null,
+        payment_method: document.querySelector('input[name="payment"]:checked')?.value || 'cod'
+      });
+      if (res && res.order) {
+        orders.unshift(res.order);
+        localStorage.setItem('shopperOrders', JSON.stringify(orders));
+        orderedItems.forEach(it => { const p = products.find(x => x.id === it.id); if (p) p.stock = Math.max(0, p.stock - it.qty); });
+        renderNotifDot();
+        renderOrders();
+        renderProducts();
+        showToast('Order placed! Estimated delivery: ' + (res.order.delivery || getDeliveryDate()), 'success');
+      }
+    } catch (e) {
+      btn.disabled = false;
+      if (e && e.body && e.body.error === 'insufficient stock') {
+        showToast(`Sorry, only ${e.body.available} of "${e.body.name}" left in stock`);
+      } else {
+        showToast('Order failed. Please try again.');
+      }
+      return;
+    }
+    btn.disabled = false;
+  } else {
+    addOrder();
+  }
   cart = [];
   savedCart = null;
   appliedCoupon = null;
@@ -2169,9 +2210,10 @@ openCheckout = function() {
   startCheckoutTimer();
 };
 
-// Stock deduction on place order
-const origPlaceOrder = document.getElementById('placeOrder').click;
+// Stock deduction on place order (offline only — when the backend is enabled
+// the server decrements stock authoritatively during /api/checkout).
 document.getElementById('placeOrder').addEventListener('click', () => {
+  if (window.ShopperDB && window.ShopperDB.enabled) return;
   if (!cart.length) return;
   cart.forEach(item => {
     const p = products.find(x => x.id === item.id);
@@ -2539,3 +2581,109 @@ renderNotifDot();
 startCountdown();
 renderDeals();
 renderReorderSuggestions();
+
+// Account (email/password) UI — backed by the Flask auth API.
+(function initAccount() {
+  const overlay = document.getElementById('accountOverlay');
+  const modal = document.getElementById('accountModal');
+  const btn = document.getElementById('accountBtn');
+  if (!btn || !modal || !overlay) return;
+
+  let mode = 'login';
+  let currentUser = null;
+  const loggedOut = document.getElementById('accountLoggedOut');
+  const loggedIn = document.getElementById('accountLoggedIn');
+  const title = document.getElementById('accountTitle');
+  const submitBtn = document.getElementById('acctSubmit');
+  const switchText = document.getElementById('acctSwitchText');
+  const switchLink = document.getElementById('acctSwitch');
+  const emailInput = document.getElementById('acctEmail');
+  const pwInput = document.getElementById('acctPassword');
+  const msg = document.getElementById('acctMsg');
+  const emailLabel = document.getElementById('acctEmailLabel');
+
+  function renderState() {
+    const inUser = !!currentUser;
+    loggedOut.style.display = inUser ? 'none' : 'block';
+    loggedIn.style.display = inUser ? 'block' : 'none';
+    btn.classList.toggle('logged-in', inUser);
+    if (inUser) emailLabel.textContent = currentUser.email;
+  }
+  function setMode(m) {
+    mode = m;
+    title.innerHTML = '<i class="fas fa-user-circle"></i> ' + (m === 'login' ? 'Log in' : 'Create account');
+    submitBtn.textContent = m === 'login' ? 'Log in' : 'Create account';
+    switchText.textContent = m === 'login' ? 'No account yet?' : 'Already have an account?';
+    switchLink.textContent = m === 'login' ? 'Create one' : 'Log in';
+    msg.textContent = ''; msg.className = 'acct-msg';
+  }
+  function openModal() {
+    if (!(window.ShopperDB && window.ShopperDB.enabled)) { showToast('Sign-in needs the server (offline mode)'); return; }
+    renderState();
+    overlay.classList.add('active'); modal.classList.add('active');
+  }
+  function closeModal() { overlay.classList.remove('active'); modal.classList.remove('active'); }
+
+  async function reloadUserData() {
+    try {
+      const [c, w, o] = await Promise.all([
+        window.ShopperDB.loadCart(), window.ShopperDB.loadWishlist(), window.ShopperDB.loadOrders()
+      ]);
+      if (Array.isArray(c)) cart = c;
+      if (Array.isArray(w)) wishlist = w;
+      if (Array.isArray(o)) orders = o;
+      localStorage.setItem('shopperCart', JSON.stringify(cart));
+      localStorage.setItem('shopperWishlist', JSON.stringify(wishlist));
+      localStorage.setItem('shopperOrders', JSON.stringify(orders));
+      renderCart(); renderWishlist(); renderOrders(); renderProducts(); renderNotifDot();
+    } catch (e) { /* keep local data */ }
+  }
+
+  btn.addEventListener('click', openModal);
+  document.getElementById('accountClose').addEventListener('click', closeModal);
+  overlay.addEventListener('click', closeModal);
+  switchLink.addEventListener('click', e => { e.preventDefault(); setMode(mode === 'login' ? 'register' : 'login'); });
+
+  submitBtn.addEventListener('click', async () => {
+    const email = emailInput.value.trim();
+    const password = pwInput.value;
+    msg.className = 'acct-msg';
+    if (!email || !password) { msg.textContent = 'Enter your email and password.'; msg.className = 'acct-msg err'; return; }
+    submitBtn.disabled = true;
+    try {
+      const res = await (mode === 'login'
+        ? window.ShopperDB.login(email, password)
+        : window.ShopperDB.register(email, password));
+      currentUser = res.user;
+      emailInput.value = ''; pwInput.value = '';
+      renderState();
+      await reloadUserData();
+      showToast(mode === 'login' ? 'Welcome back!' : 'Account created!', 'success');
+      setTimeout(closeModal, 400);
+    } catch (e) {
+      msg.className = 'acct-msg err';
+      msg.textContent = (e && e.body && e.body.error) ? e.body.error : 'Something went wrong. Try again.';
+    }
+    submitBtn.disabled = false;
+  });
+
+  document.getElementById('acctLogout').addEventListener('click', async () => {
+    await window.ShopperDB.logout().catch(() => {});
+    currentUser = null;
+    renderState();
+    await reloadUserData();
+    showToast('Logged out');
+    closeModal();
+  });
+
+  pwInput.addEventListener('keydown', e => { if (e.key === 'Enter') submitBtn.click(); });
+
+  setMode('login');
+  if (window.ShopperDB) {
+    window.ShopperDB.ready.then(async (connected) => {
+      if (!connected) return;
+      currentUser = await window.ShopperDB.me();
+      renderState();
+    });
+  }
+})();

@@ -24,9 +24,9 @@ window.ShopperDB = (function () {
       headers: { 'Content-Type': 'application/json' },
       ...options
     });
-    if (!res.ok) throw new Error('HTTP ' + res.status + ' for ' + path);
-    if (res.status === 204) return null;
-    return res.json();
+    const body = res.status === 204 ? null : await res.json().catch(() => null);
+    if (!res.ok) throw Object.assign(new Error('HTTP ' + res.status + ' for ' + path), { status: res.status, body });
+    return body;
   }
 
   async function init() {
@@ -92,6 +92,30 @@ window.ShopperDB = (function () {
       .catch(e => console.warn('[ShopperDB] saveWishlist:', e.message)));
   }
 
+  // --- Auth (email + password accounts) ------------------------------------
+
+  async function me() {
+    if (!enabled) return null;
+    try { return (await api('/auth/me')).user; }
+    catch { return null; }
+  }
+  function register(email, password) {
+    return api('/auth/register', { method: 'POST', body: JSON.stringify({ email, password }) });
+  }
+  function login(email, password) {
+    return api('/auth/login', { method: 'POST', body: JSON.stringify({ email, password }) });
+  }
+  function logout() {
+    return api('/auth/logout', { method: 'POST' });
+  }
+
+  // --- Checkout (server-authoritative: validates stock, computes total) -----
+
+  async function checkout(payload) {
+    if (!enabled) return null;
+    return api('/checkout', { method: 'POST', body: JSON.stringify(payload) });
+  }
+
   // --- Orders --------------------------------------------------------------
 
   async function loadOrders() {
@@ -113,6 +137,8 @@ window.ShopperDB = (function () {
     loadProducts, addReview,
     loadCart, saveCart,
     loadWishlist, saveWishlist,
-    loadOrders, saveOrders
+    loadOrders, saveOrders,
+    checkout,
+    me, register, login, logout
   };
 })();

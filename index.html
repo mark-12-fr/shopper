@@ -45,6 +45,9 @@
         <button class="icon-btn" id="darkToggle" aria-label="Toggle dark mode">
           <i class="fas fa-moon"></i>
         </button>
+        <button class="icon-btn" id="accountBtn" aria-label="Account">
+          <i class="fas fa-user"></i>
+        </button>
         <button class="icon-btn" id="ordersBtn" aria-label="My orders">
           <i class="fas fa-receipt"></i>
           <span class="notif-dot" id="notifDot"></span>
@@ -314,6 +317,28 @@
 
   <!-- SCROLL TO TOP -->
   <button class="scroll-top" id="scrollTop" aria-label="Scroll to top"><i class="fas fa-chevron-up"></i></button>
+
+  <!-- ACCOUNT MODAL -->
+  <div class="account-overlay" id="accountOverlay"></div>
+  <div class="account-modal" id="accountModal" role="dialog" aria-modal="true" aria-label="Account">
+    <button class="account-close" id="accountClose" aria-label="Close"><i class="fas fa-times"></i></button>
+    <div id="accountLoggedOut">
+      <h3 id="accountTitle"><i class="fas fa-user-circle"></i> Log in</h3>
+      <input type="email" id="acctEmail" placeholder="Email" autocomplete="email">
+      <input type="password" id="acctPassword" placeholder="Password (min 6 chars)" autocomplete="current-password">
+      <button id="acctSubmit" class="acct-btn">Log in</button>
+      <div id="acctMsg" class="acct-msg"></div>
+      <p class="acct-switch">
+        <span id="acctSwitchText">No account yet?</span>
+        <a href="#" id="acctSwitch">Create one</a>
+      </p>
+    </div>
+    <div id="accountLoggedIn" style="display:none;">
+      <h3><i class="fas fa-user-circle"></i> My account</h3>
+      <p class="acct-email" id="acctEmailLabel"></p>
+      <button id="acctLogout" class="acct-btn acct-btn-ghost">Log out</button>
+    </div>
+  </div>
 
   <script src="api.js"></script>
   <script src="script.js"></script>
