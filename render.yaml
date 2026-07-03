@@ -1,0 +1,17 @@
+# One-click deploy config for Render (https://render.com).
+# After creating the service, set DATABASE_URL (your Supabase pooler URI),
+# SECRET_KEY, and ADMIN_PASSWORD in the dashboard's Environment section.
+services:
+  - type: web
+    name: shopper
+    runtime: python
+    plan: free
+    buildCommand: pip install -r backend/requirements.txt
+    startCommand: gunicorn --chdir backend app:app --bind 0.0.0.0:$PORT
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ADMIN_PASSWORD
+        sync: false
+      - key: DATABASE_URL
+        sync: false

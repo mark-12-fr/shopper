@@ -54,16 +54,53 @@ this before `api.js` in `index.html` and the backend CORS will allow it:
 <script>window.SHOPPER_API_BASE = 'https://your-backend.example.com';</script>
 ```
 
+## Admin panel
+
+Visit **`/admin`** and log in with `ADMIN_PASSWORD` (default `admin123` — change
+it). From there you can add / edit / delete products and stock, and view all
+orders and move them through Processing → Shipped → Delivered.
+
+## Checkout is server-authoritative
+
+`POST /api/checkout` recomputes the total from database prices, validates and
+**decrements stock**, applies coupons/bulk/points/delivery/gift server-side,
+and records the order. The browser can't fake the price. Non-COD payments are
+simulated unless `PAYMONGO_SECRET_KEY` is set.
+
+## Deploy
+
+- **Render:** the repo ships a `render.yaml` — create a Blueprint service, then
+  set `DATABASE_URL`, `ADMIN_PASSWORD` (and optionally `PAYMONGO_SECRET_KEY`).
+- **Railway / Fly / Heroku-style:** a `Procfile` is included
+  (`gunicorn --chdir backend app:app`).
+- Any Python host works; set the env vars and run the gunicorn command.
+
+> On serverless/ephemeral hosts, use Postgres (`DATABASE_URL`) — a SQLite file
+> won't persist between instances.
+
 ## API
 
-| Method | Path                              | Purpose                          |
-| ------ | --------------------------------- | -------------------------------- |
-| GET    | `/api/health`                     | connectivity check               |
-| GET    | `/api/products`                   | catalog + reviews                |
-| POST   | `/api/products/<id>/reviews`      | add a review                     |
-| GET/PUT| `/api/cart`                       | this visitor's cart              |
-| GET/PUT| `/api/wishlist`                   | this visitor's wishlist          |
-| GET/PUT| `/api/orders`                     | this visitor's orders (upsert)   |
+| Method    | Path                            | Purpose                          |
+| --------- | ------------------------------- | -------------------------------- |
+| GET       | `/api/health`                   | connectivity check               |
+| GET       | `/api/products`                 | catalog + reviews                |
+| POST      | `/api/products/<id>/reviews`    | add a review                     |
+| GET/PUT   | `/api/cart`                     | this visitor's cart              |
+| GET/PUT   | `/api/wishlist`                 | this visitor's wishlist          |
+| GET/PUT   | `/api/orders`                   | this visitor's orders (upsert)   |
+| POST      | `/api/checkout`                 | validate stock + place order     |
+| POST      | `/api/admin/login` `logout`     | admin auth                       |
+| GET       | `/api/admin/orders`             | all orders (admin)               |
+| PATCH     | `/api/admin/orders/<id>`        | update order status (admin)      |
+| POST/PUT/DELETE | `/api/admin/products[/<id>]` | manage catalog (admin)        |
 
 The frontend (`api.js`) falls back to built-in data + `localStorage` whenever
 the API is unreachable, so the site still works if the backend is down.
+
+## Tests
+
+```bash
+pip install -r requirements-dev.txt
+python -m pytest -q
+```
+CI runs these on every push/PR (`.github/workflows/backend-tests.yml`).

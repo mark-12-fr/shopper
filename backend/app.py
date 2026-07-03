@@ -42,6 +42,12 @@ def database_url():
 
 app = Flask(__name__, static_folder=ROOT_DIR, static_url_path="")
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "dev-only-change-me")
+ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "admin123")
+PAYMONGO_SECRET_KEY = os.environ.get("PAYMONGO_SECRET_KEY", "").strip()
+GIFT_WRAP_PRICE = 49
+DELIVERY_FEE = 49
+POINTS_PER_PESO = 0.1
+COUPONS = {"SAVE10": 0.10, "SAVE5": 0.05}
 app.config["SQLALCHEMY_DATABASE_URI"] = database_url()
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {"pool_pre_ping": True}
@@ -321,12 +327,239 @@ def put_orders():
 
 
 # ---------------------------------------------------------------------------
+# Pricing (server-authoritative — mirrors the client rules)
+# ---------------------------------------------------------------------------
+
+def bulk_discount_rate(qty):
+    if qty >= 10:
+        return 0.10
+    if qty >= 5:
+        return 0.05
+    if qty >= 3:
+        return 0.03
+    return 0.0
+
+
+def price_cart(items, coupon=None, gift_wrap=False, delivery_method="delivery",
+               points_redeemed=0):
+    """Validate items against the DB and compute totals from DB prices.
+
+    Returns (result_dict, error_dict). Exactly one is non-None.
+    """
+    if not items:
+        return None, {"error": "cart is empty"}
+    resolved = []
+    subtotal = 0.0
+    total_qty = 0
+    for item in items:
+        try:
+            pid, qty = int(item["id"]), int(item["qty"])
+        except (KeyError, TypeError, ValueError):
+            return None, {"error": "invalid cart item"}
+        if qty <= 0:
+            continue
+        product = db.session.get(Product, pid)
+        if product is None:
+            return None, {"error": f"product {pid} not found"}
+        if product.stock < qty:
+            return None, {"error": "insufficient stock", "product_id": pid,
+                          "name": product.name, "available": product.stock}
+        subtotal += product.price * qty
+        total_qty += qty
+        resolved.append((product, qty))
+    if not resolved:
+        return None, {"error": "cart is empty"}
+
+    bulk = subtotal * bulk_discount_rate(total_qty)
+    coupon_rate = COUPONS.get((coupon or "").strip().upper(), 0.0)
+    coupon_amt = (subtotal - bulk) * coupon_rate
+    gift = GIFT_WRAP_PRICE if gift_wrap else 0
+    delivery = 0 if delivery_method == "pickup" else DELIVERY_FEE
+    max_points = max(0.0, subtotal - bulk - coupon_amt + gift + delivery)
+    points = min(max(0, int(points_redeemed)) * POINTS_PER_PESO, max_points)
+    total = subtotal - bulk - coupon_amt + gift + delivery - points
+    return {
+        "resolved": resolved,
+        "subtotal": round(subtotal, 2),
+        "bulk_discount": round(bulk, 2),
+        "coupon_discount": round(coupon_amt, 2),
+        "gift": gift,
+        "delivery": delivery,
+        "points_discount": round(points, 2),
+        "total": round(total, 2),
+    }, None
+
+
+@app.post("/api/checkout")
+def checkout():
+    """Authoritative checkout: validates stock, computes the total from DB
+    prices, decrements stock, and records the order — all server-side."""
+    sid = current_sid()
+    data = request.get_json(force=True, silent=True) or {}
+    priced, err = price_cart(
+        data.get("items", []),
+        coupon=data.get("coupon"),
+        gift_wrap=bool(data.get("gift_wrap")),
+        delivery_method=data.get("delivery_method", "delivery"),
+        points_redeemed=data.get("points_redeemed", 0),
+    )
+    if err:
+        return jsonify(err), 409
+
+    payment_method = data.get("payment_method", "cod")
+    payment = {"method": payment_method, "status": "cod" if payment_method == "cod" else "simulated"}
+    # Real card payments go through PayMongo when a key is configured; otherwise
+    # non-COD methods are simulated so the demo still completes.
+    if payment_method != "cod" and PAYMONGO_SECRET_KEY:
+        payment["status"] = "pending"  # a real integration would create a PayMongo source here
+
+    items_snapshot = [
+        {"id": p.id, "name": p.name, "qty": qty, "price": p.price, "image": p.image}
+        for p, qty in priced["resolved"]
+    ]
+    for product, qty in priced["resolved"]:
+        product.stock = max(0, product.stock - qty)
+        product.sold = (product.sold or 0) + qty
+
+    order = Order(
+        id=int(datetime.now(timezone.utc).timestamp() * 1000),
+        session_id=sid, items=items_snapshot, total=priced["total"],
+        status="Processing", cancelled=False,
+        shipping=data.get("shipping"), delivery=data.get("delivery"),
+    )
+    db.session.add(order)
+    # Clear the server-side cart now that it's an order.
+    CartItem.query.filter_by(session_id=sid).delete()
+    db.session.commit()
+    return jsonify(ok=True, order=order.to_dict(), pricing={
+        k: priced[k] for k in ("subtotal", "bulk_discount", "coupon_discount",
+                               "gift", "delivery", "points_discount", "total")
+    }, payment=payment), 201
+
+
+# ---------------------------------------------------------------------------
+# Admin
+# ---------------------------------------------------------------------------
+
+def admin_required(fn):
+    from functools import wraps
+
+    @wraps(fn)
+    def wrapper(*args, **kwargs):
+        if not session.get("is_admin"):
+            return jsonify(error="admin login required"), 401
+        return fn(*args, **kwargs)
+    return wrapper
+
+
+@app.post("/api/admin/login")
+def admin_login():
+    data = request.get_json(force=True, silent=True) or {}
+    if data.get("password") == ADMIN_PASSWORD:
+        session["is_admin"] = True
+        return jsonify(ok=True)
+    return jsonify(error="invalid password"), 401
+
+
+@app.post("/api/admin/logout")
+def admin_logout():
+    session.pop("is_admin", None)
+    return jsonify(ok=True)
+
+
+@app.get("/api/admin/me")
+def admin_me():
+    return jsonify(admin=bool(session.get("is_admin")))
+
+
+@app.get("/api/admin/orders")
+@admin_required
+def admin_orders():
+    orders = Order.query.order_by(Order.id.desc()).all()
+    return jsonify([{**o.to_dict(), "session_id": o.session_id} for o in orders])
+
+
+@app.patch("/api/admin/orders/<int:order_id>")
+@admin_required
+def admin_update_order(order_id):
+    order = db.session.get(Order, order_id)
+    if not order:
+        return jsonify(error="order not found"), 404
+    data = request.get_json(force=True, silent=True) or {}
+    status = data.get("status")
+    if status not in ("Processing", "Shipped", "Delivered", "Cancelled"):
+        return jsonify(error="invalid status"), 400
+    order.status = status
+    order.cancelled = status == "Cancelled"
+    db.session.commit()
+    return jsonify(ok=True, order=order.to_dict())
+
+
+@app.post("/api/admin/products")
+@admin_required
+def admin_create_product():
+    data = request.get_json(force=True, silent=True) or {}
+    if not data.get("name") or not data.get("category"):
+        return jsonify(error="name and category are required"), 400
+    next_id = (db.session.query(db.func.max(Product.id)).scalar() or 0) + 1
+    product = Product(
+        id=next_id, name=data["name"], category=data["category"],
+        price=float(data.get("price", 0)), orig_price=data.get("origPrice"),
+        image=data.get("image"), rating=data.get("rating", 0), sold=data.get("sold", 0),
+        stock=int(data.get("stock", 0)), badge=data.get("badge"),
+        max_per_user=data.get("maxPerUser"), description=data.get("desc"),
+        video=data.get("video"), variants=data.get("variants"), images=data.get("images"),
+        qa=data.get("qa"), seller=data.get("seller"),
+    )
+    db.session.add(product)
+    db.session.commit()
+    return jsonify(ok=True, product=product.to_dict()), 201
+
+
+@app.put("/api/admin/products/<int:product_id>")
+@admin_required
+def admin_update_product(product_id):
+    product = db.session.get(Product, product_id)
+    if not product:
+        return jsonify(error="product not found"), 404
+    data = request.get_json(force=True, silent=True) or {}
+    field_map = {
+        "name": "name", "category": "category", "price": "price", "origPrice": "orig_price",
+        "image": "image", "rating": "rating", "sold": "sold", "stock": "stock",
+        "badge": "badge", "maxPerUser": "max_per_user", "desc": "description",
+        "video": "video", "variants": "variants", "images": "images", "qa": "qa",
+        "seller": "seller",
+    }
+    for key, col in field_map.items():
+        if key in data:
+            setattr(product, col, data[key])
+    db.session.commit()
+    return jsonify(ok=True, product=product.to_dict())
+
+
+@app.delete("/api/admin/products/<int:product_id>")
+@admin_required
+def admin_delete_product(product_id):
+    product = db.session.get(Product, product_id)
+    if not product:
+        return jsonify(error="product not found"), 404
+    db.session.delete(product)
+    db.session.commit()
+    return jsonify(ok=True)
+
+
+# ---------------------------------------------------------------------------
 # Static frontend
 # ---------------------------------------------------------------------------
 
 @app.get("/")
 def index():
     return send_from_directory(ROOT_DIR, "index.html")
+
+
+@app.get("/admin")
+def admin_page():
+    return send_from_directory(ROOT_DIR, "admin.html")
 
 
 @app.get("/<path:path>")
